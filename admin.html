@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VYA Admin</title>
+<style>
+  :root{--navy:#0b1330;--blue:#2b6cf6;--purple:#7b2ff7;--ink:#0f1533;--paper:#f5f7fd;--muted:#5b6382;--line:#e2e6f5;
+    box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--paper:#0b1130;--ink:#eef1ff;--muted:#a6acc9;--line:#232c55;} }
+  :root[data-theme="dark"]{--paper:#0b1130;--ink:#eef1ff;--muted:#a6acc9;--line:#232c55;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;padding:20px;max-width:720px;margin:0 auto;line-height:1.5;}
+  h1{font-size:1.3rem;margin-bottom:4px;}
+  p.sub{color:var(--muted);font-size:0.88rem;margin-bottom:20px;}
+  fieldset{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;}
+  legend{font-weight:700;padding:0 8px;font-size:0.95rem;}
+  label{display:block;font-size:0.8rem;color:var(--muted);margin:10px 0 4px;}
+  input,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font-size:0.9rem;font-family:inherit;}
+  textarea{resize:vertical;min-height:56px;}
+  .row{display:grid;gap:10px;}
+  @media(min-width:560px){.row2{grid-template-columns:1fr 1fr;}}
+  .card-item{border:1px dashed var(--line);border-radius:10px;padding:10px;margin-bottom:8px;}
+  button{padding:11px 20px;border:none;border-radius:9px;font-weight:600;font-size:0.9rem;cursor:pointer;}
+  .btn-save{background:linear-gradient(100deg,var(--blue),var(--purple));color:#fff;width:100%;margin-top:8px;}
+  .btn-load{background:var(--navy);color:#fff;}
+  #status{margin-top:14px;font-size:0.85rem;padding:10px;border-radius:8px;display:none;}
+  .ok{background:#dcfce7;color:#166534;display:block !important;}
+  .err{background:#fee2e2;color:#991b1b;display:block !important;}
+  .hint{font-size:0.78rem;color:var(--muted);margin-top:4px;}
+  a{color:var(--blue);}
+</style>
+</head>
+<body>
+<h1>⚙ VYA Site Admin</h1>
+<p class="sub">Edit your site content here, then click Save to commit it straight to GitHub.</p>
+
+<fieldset>
+  <legend>GitHub connection</legend>
+  <div class="row row2">
+    <div><label>GitHub username</label><input id="gh-owner" placeholder="yourusername"></div>
+    <div><label>Repository name</label><input id="gh-repo" placeholder="my-vya-site"></div>
+  </div>
+  <div class="row row2">
+    <div><label>Branch</label><input id="gh-branch" value="main"></div>
+    <div><label>data.json path</label><input id="gh-path" value="data.json"></div>
+  </div>
+  <label>Personal access token (fine-grained, "Contents: read/write" on this repo only)</label>
+  <input id="gh-token" type="password" placeholder="ghp_...">
+  <p class="hint">Never share this token. It's stored only in this browser (localStorage), never sent anywhere except GitHub's API. Create one at
+    <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a>.</p>
+  <button class="btn-load" onclick="loadData()">Load current content</button>
+</fieldset>
+
+<form id="form">
+  <fieldset>
+    <legend>Hero section</legend>
+    <label>Top tag</label><input id="hero-tag">
+    <label>Headline</label><input id="hero-title">
+    <label>Subtitle</label><textarea id="hero-sub"></textarea>
+    <label>Stats (number / label)</label>
+    <div id="stats-list"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>About section</legend>
+    <label>Intro paragraph</label><textarea id="about-lead"></textarea>
+    <label>Cards (icon / title / text)</label>
+    <div id="cards-list"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Programs section</legend>
+    <label>Intro paragraph</label><textarea id="prog-lead"></textarea>
+    <label>Pillars (title / text)</label>
+    <div id="pillars-list"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Event</legend>
+    <label>Title</label><input id="event-title">
+    <label>Text</label><textarea id="event-text"></textarea>
+  </fieldset>
+
+  <fieldset>
+    <legend>Join section</legend>
+    <label>Title</label><input id="join-title">
+    <label>Text</label><textarea id="join-text"></textarea>
+  </fieldset>
+
+  <fieldset>
+    <legend>Contact (footer)</legend>
+    <label>Email</label><input id="contact-email">
+    <label>Phone</label><input id="contact-phone">
+    <label>Address</label><input id="contact-address">
+  </fieldset>
+
+  <button type="button" class="btn-save" onclick="saveData()">💾 Save to GitHub</button>
+</form>
+<div id="status"></div>
+
+<script>
+const gh = ['gh-owner','gh-repo','gh-branch','gh-path','gh-token'];
+gh.forEach(id=>{ const el=document.getElementById(id); const saved=localStorage.getItem(id); if(saved) el.value=saved; el.addEventListener('change',()=>localStorage.setItem(id,el.value)); });
+
+let currentSha = null;
+
+function apiUrl(){
+  const owner=document.getElementById('gh-owner').value.trim();
+  const repo=document.getElementById('gh-repo').value.trim();
+  const path=document.getElementById('gh-path').value.trim();
+  return `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+}
+
+async function loadData(){
+  const branch = document.getElementById('gh-branch').value.trim() || 'main';
+  const token = document.getElementById('gh-token').value.trim();
+  const status = document.getElementById('status');
+  try{
+    const headers = token ? {Authorization:`Bearer ${token}`, Accept:'application/vnd.github+json'} : {Accept:'application/vnd.github+json'};
+    const res = await fetch(`${apiUrl()}?ref=${branch}`, {headers});
+    if(!res.ok) throw new Error(`GitHub responded ${res.status}. Check owner/repo/path/token.`);
+    const json = await res.json();
+    currentSha = json.sha;
+    const content = JSON.parse(decodeURIComponent(escape(atob(json.content))));
+    fillForm(content);
+    status.className='ok'; status.textContent='Loaded current content from GitHub.';
+  }catch(e){
+    status.className='err'; status.textContent='Could not load: '+e.message+' — trying local data.json instead.';
+    try{
+      const r2 = await fetch('data.json'); const c2 = await r2.json(); fillForm(c2);
+    }catch(e2){}
+  }
+}
+
+function fillForm(d){
+  document.getElementById('hero-tag').value = d.hero.tag;
+  document.getElementById('hero-title').value = d.hero.title;
+  document.getElementById('hero-sub').value = d.hero.subtitle;
+  document.getElementById('stats-list').innerHTML = d.stats.map((s,i)=>`
+    <div class="card-item row row2">
+      <input data-g="stats" data-i="${i}" data-k="num" value="${esc(s.num)}" placeholder="Number">
+      <input data-g="stats" data-i="${i}" data-k="label" value="${esc(s.label)}" placeholder="Label">
+    </div>`).join('');
+  document.getElementById('cards-list').innerHTML = d.about.cards.map((c,i)=>`
+    <div class="card-item">
+      <div class="row row2">
+        <input data-g="cards" data-i="${i}" data-k="icon" value="${esc(c.icon)}" placeholder="Emoji icon">
+        <input data-g="cards" data-i="${i}" data-k="title" value="${esc(c.title)}" placeholder="Title">
+      </div>
+      <textarea data-g="cards" data-i="${i}" data-k="text" placeholder="Text">${esc(c.text)}</textarea>
+    </div>`).join('');
+  document.getElementById('prog-lead').value = d.programs.lead;
+  document.getElementById('pillars-list').innerHTML = d.programs.pillars.map((p,i)=>`
+    <div class="card-item">
+      <input data-g="pillars" data-i="${i}" data-k="title" value="${esc(p.title)}" placeholder="Title">
+      <textarea data-g="pillars" data-i="${i}" data-k="text" placeholder="Text">${esc(p.text)}</textarea>
+    </div>`).join('');
+  document.getElementById('event-title').value = d.event.title;
+  document.getElementById('event-text').value = d.event.text;
+  document.getElementById('join-title').value = d.join.title;
+  document.getElementById('join-text').value = d.join.text;
+  document.getElementById('contact-email').value = d.contact.email;
+  document.getElementById('contact-phone').value = d.contact.phone;
+  document.getElementById('contact-address').value = d.contact.address;
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function collectGroup(name, keys){
+  const items = [...document.querySelectorAll(`[data-g="${name}"]`)];
+  const byIndex = {};
+  items.forEach(el=>{ const i=el.dataset.i; byIndex[i] = byIndex[i]||{}; byIndex[i][el.dataset.k]=el.value; });
+  return Object.keys(byIndex).sort((a,b)=>a-b).map(i=>byIndex[i]);
+}
+
+function buildData(){
+  return {
+    hero: { tag: document.getElementById('hero-tag').value, title: document.getElementById('hero-title').value, subtitle: document.getElementById('hero-sub').value },
+    stats: collectGroup('stats'),
+    about: { lead: document.getElementById('about-lead').value, cards: collectGroup('cards') },
+    programs: { lead: document.getElementById('prog-lead').value, pillars: collectGroup('pillars') },
+    event: { title: document.getElementById('event-title').value, text: document.getElementById('event-text').value },
+    join: { title: document.getElementById('join-title').value, text: document.getElementById('join-text').value },
+    contact: { email: document.getElementById('contact-email').value, phone: document.getElementById('contact-phone').value, address: document.getElementById('contact-address').value }
+  };
+}
+
+async function saveData(){
+  const status = document.getElementById('status');
+  const token = document.getElementById('gh-token').value.trim();
+  const branch = document.getElementById('gh-branch').value.trim() || 'main';
+  if(!token){ status.className='err'; status.textContent='Add a GitHub token first.'; return; }
+  const data = buildData();
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+  try{
+    if(!currentSha){
+      const res = await fetch(`${apiUrl()}?ref=${branch}`, {headers:{Authorization:`Bearer ${token}`, Accept:'application/vnd.github+json'}});
+      if(res.ok){ const j = await res.json(); currentSha = j.sha; }
+    }
+    const body = { message:'Update site content via admin panel', content, branch };
+    if(currentSha) body.sha = currentSha;
+    const res = await fetch(apiUrl(), { method:'PUT', headers:{Authorization:`Bearer ${token}`, Accept:'application/vnd.github+json'}, body: JSON.stringify(body) });
+    const j = await res.json();
+    if(!res.ok) throw new Error(j.message || `GitHub responded ${res.status}`);
+    currentSha = j.content.sha;
+    status.className='ok'; status.textContent='Saved! Your live site will update in a few seconds.';
+  }catch(e){
+    status.className='err'; status.textContent='Save failed: '+e.message;
+  }
+}
+
+window.addEventListener('load', ()=>{ if(document.getElementById('gh-owner').value) loadData(); });
+</script>
+</body>
+</html>
