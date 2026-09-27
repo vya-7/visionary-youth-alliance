@@ -119,6 +119,14 @@
   </div>
 </section>
 
+<section id="team" style="display:none">
+  <div class="wrap">
+    <div class="eyebrow">Our Team</div>
+    <h2>Meet the people behind VYA</h2>
+    <div class="about-grid" id="t-team"></div>
+  </div>
+</section>
+
 <section id="events">
   <div class="wrap">
     <div class="eyebrow">Our Events</div>
@@ -163,8 +171,6 @@
   <div class="fbottom">© 2026 Visionary Youth Alliance. All Rights Reserved.</div>
 </footer>
 
-<a class="admin-link" href="admin.html">⚙ Admin</a>
-
 <script>
 fetch('data.json').then(r=>r.json()).then(d=>{
   document.getElementById('h-tag').textContent = d.hero.tag;
@@ -175,6 +181,10 @@ fetch('data.json').then(r=>r.json()).then(d=>{
   document.getElementById('a-cards').innerHTML = d.about.cards.map(c=>`<div class="card"><div class="ic">${c.icon}</div><h3>${c.title}</h3><p>${c.text}</p></div>`).join('');
   document.getElementById('p-lead').textContent = d.programs.lead;
   document.getElementById('p-pillars').innerHTML = d.programs.pillars.map((p,i)=>`<div class="pillar"><div class="n">0${i+1}</div><div><h3>${p.title}</h3><p>${p.text}</p></div></div>`).join('');
+  if(d.team && d.team.length){
+    document.getElementById('team').style.display = 'block';
+    document.getElementById('t-team').innerHTML = d.team.map(m=>`<div class="card"><div class="ic">👤</div><h3>${m.name}</h3><p>${m.role}</p></div>`).join('');
+  }
   document.getElementById('e-title').textContent = d.event.title;
   document.getElementById('e-text').textContent = d.event.text;
   document.getElementById('j-title').textContent = d.join.title;

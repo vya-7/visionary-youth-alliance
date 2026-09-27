@@ -5,101 +5,173 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>VYA Admin</title>
 <style>
-  :root{--navy:#0b1330;--blue:#2b6cf6;--purple:#7b2ff7;--ink:#0f1533;--paper:#f5f7fd;--muted:#5b6382;--line:#e2e6f5;
+  :root{--navy:#0b1330;--navy2:#101c45;--blue:#2b6cf6;--purple:#7b2ff7;--ink:#eef1ff;--muted:#9aa3d1;--line:#232c55;--panel:#141d4a;
     box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
-  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--paper:#0b1130;--ink:#eef1ff;--muted:#a6acc9;--line:#232c55;} }
-  :root[data-theme="dark"]{--paper:#0b1130;--ink:#eef1ff;--muted:#a6acc9;--line:#232c55;}
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;padding:20px;max-width:720px;margin:0 auto;line-height:1.5;}
-  h1{font-size:1.3rem;margin-bottom:4px;}
-  p.sub{color:var(--muted);font-size:0.88rem;margin-bottom:20px;}
-  fieldset{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;}
-  legend{font-weight:700;padding:0 8px;font-size:0.95rem;}
-  label{display:block;font-size:0.8rem;color:var(--muted);margin:10px 0 4px;}
-  input,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font-size:0.9rem;font-family:inherit;}
+  html,body{height:100%;}
+  body{background:var(--navy);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;display:flex;min-height:100vh;flex-wrap:wrap;}
+  a{color:inherit;text-decoration:none;}
+  #sidebar{width:230px;flex-shrink:0;background:var(--navy2);border-right:1px solid var(--line);padding:18px 12px;overflow-y:auto;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.05rem;padding:6px 8px 18px;}
+  .brand span{background:linear-gradient(100deg,var(--blue),var(--purple));width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;}
+  .navgroup{font-size:0.72rem;letter-spacing:.04em;color:var(--muted);margin:16px 8px 6px;text-transform:uppercase;}
+  .navitem{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;font-size:0.9rem;color:#c7cdec;cursor:pointer;margin-bottom:2px;}
+  .navitem:hover{background:rgba(255,255,255,0.05);}
+  .navitem.active{background:linear-gradient(100deg,rgba(43,108,246,0.25),rgba(123,47,247,0.25));color:#fff;}
+  #main{flex:1;min-width:280px;display:flex;flex-direction:column;}
+  #topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--navy);z-index:5;}
+  #topbar h1{font-size:1.1rem;}
+  #content{padding:22px;flex:1;overflow-y:auto;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  @media(min-width:560px){.stat-grid{grid-template-columns:repeat(4,1fr);}}
+  .stat-box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;}
+  .stat-box span{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .stat-box b{display:block;font-size:1.6rem;margin-top:6px;}
+  fieldset{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;background:var(--panel);}
+  legend{font-weight:700;padding:0 8px;font-size:0.92rem;}
+  label{display:block;font-size:0.78rem;color:var(--muted);margin:10px 0 4px;}
+  input,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--navy);color:var(--ink);font-size:0.88rem;font-family:inherit;}
   textarea{resize:vertical;min-height:56px;}
   .row{display:grid;gap:10px;}
   @media(min-width:560px){.row2{grid-template-columns:1fr 1fr;}}
-  .card-item{border:1px dashed var(--line);border-radius:10px;padding:10px;margin-bottom:8px;}
-  button{padding:11px 20px;border:none;border-radius:9px;font-weight:600;font-size:0.9rem;cursor:pointer;}
-  .btn-save{background:linear-gradient(100deg,var(--blue),var(--purple));color:#fff;width:100%;margin-top:8px;}
-  .btn-load{background:var(--navy);color:#fff;}
-  #status{margin-top:14px;font-size:0.85rem;padding:10px;border-radius:8px;display:none;}
-  .ok{background:#dcfce7;color:#166534;display:block !important;}
-  .err{background:#fee2e2;color:#991b1b;display:block !important;}
-  .hint{font-size:0.78rem;color:var(--muted);margin-top:4px;}
-  a{color:var(--blue);}
+  .card-item{border:1px dashed var(--line);border-radius:10px;padding:10px;margin-bottom:8px;position:relative;}
+  .rm{position:absolute;top:8px;right:8px;background:none;border:none;color:#ff8080;font-size:0.85rem;cursor:pointer;padding:2px 6px;}
+  button{padding:10px 18px;border:none;border-radius:9px;font-weight:600;font-size:0.88rem;cursor:pointer;}
+  .btn-save{background:linear-gradient(100deg,var(--blue),var(--purple));color:#fff;}
+  .btn-add{background:var(--navy);border:1px solid var(--line);color:var(--ink);width:100%;margin-top:4px;}
+  #status{margin:0 22px 16px;font-size:0.85rem;padding:10px 14px;border-radius:8px;display:none;}
+  .ok{background:rgba(34,197,94,0.15);color:#4ade80;display:block !important;}
+  .err{background:rgba(239,68,68,0.15);color:#f87171;display:block !important;}
+  .hint{font-size:0.76rem;color:var(--muted);margin-top:4px;}
 </style>
 </head>
 <body>
-<h1>⚙ VYA Site Admin</h1>
-<p class="sub">Edit your site content here, then click Save to commit it straight to GitHub.</p>
 
-<fieldset>
-  <legend>GitHub connection</legend>
-  <div class="row row2">
-    <div><label>GitHub username</label><input id="gh-owner" placeholder="yourusername"></div>
-    <div><label>Repository name</label><input id="gh-repo" placeholder="my-vya-site"></div>
+<div id="sidebar">
+  <div class="brand"><span>V</span>VYA Admin</div>
+  <div class="navgroup">Overview</div>
+  <div class="navitem active" data-view="dashboard">📊 Dashboard</div>
+  <div class="navgroup">Content</div>
+  <div class="navitem" data-view="home">🏠 Home Page</div>
+  <div class="navitem" data-view="team">👥 Team Members</div>
+  <div class="navgroup">Notice</div>
+  <div class="navitem" data-view="event">🚀 Events</div>
+  <div class="navitem" data-view="join">🤝 Join Section</div>
+  <div class="navgroup">Settings</div>
+  <div class="navitem" data-view="contact">📬 Contact Info</div>
+  <div class="navitem" data-view="connection">🔑 GitHub Connection</div>
+  <div class="navgroup"><a href="index.html">← Back to Site</a></div>
+</div>
+
+<div id="main">
+  <div id="topbar">
+    <h1 id="view-title">Dashboard</h1>
+    <button class="btn-save" onclick="saveData()">💾 Save to GitHub</button>
   </div>
-  <div class="row row2">
-    <div><label>Branch</label><input id="gh-branch" value="main"></div>
-    <div><label>data.json path</label><input id="gh-path" value="data.json"></div>
+  <div id="status"></div>
+  <div id="content">
+
+    <div class="view active" id="v-dashboard">
+      <div class="stat-grid">
+        <div class="stat-box"><span>Stats shown</span><b id="d-stats">–</b></div>
+        <div class="stat-box"><span>Team members</span><b id="d-team">–</b></div>
+        <div class="stat-box"><span>About cards</span><b id="d-cards">–</b></div>
+        <div class="stat-box"><span>Program pillars</span><b id="d-pillars">–</b></div>
+      </div>
+      <p class="hint" style="margin-top:16px">Use the sidebar to edit each part of the site, then click "Save to GitHub" at any time.</p>
+    </div>
+
+    <div class="view" id="v-home">
+      <fieldset>
+        <legend>Hero</legend>
+        <label>Top tag</label><input id="hero-tag">
+        <label>Headline</label><input id="hero-title">
+        <label>Subtitle</label><textarea id="hero-sub"></textarea>
+        <label>Stats (number / label)</label>
+        <div id="stats-list"></div>
+      </fieldset>
+      <fieldset>
+        <legend>About section</legend>
+        <label>Intro paragraph</label><textarea id="about-lead"></textarea>
+        <label>Cards (icon / title / text)</label>
+        <div id="cards-list"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Programs section</legend>
+        <label>Intro paragraph</label><textarea id="prog-lead"></textarea>
+        <label>Pillars (title / text)</label>
+        <div id="pillars-list"></div>
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-team">
+      <fieldset>
+        <legend>Team Members</legend>
+        <div id="team-list"></div>
+        <button type="button" class="btn-add" onclick="addTeam()">+ Add team member</button>
+        <p class="hint">Leave empty and save to hide the Team section from the site.</p>
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-event">
+      <fieldset>
+        <legend>Event</legend>
+        <label>Title</label><input id="event-title">
+        <label>Text</label><textarea id="event-text"></textarea>
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-join">
+      <fieldset>
+        <legend>Join section</legend>
+        <label>Title</label><input id="join-title">
+        <label>Text</label><textarea id="join-text"></textarea>
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-contact">
+      <fieldset>
+        <legend>Contact (footer)</legend>
+        <label>Email</label><input id="contact-email">
+        <label>Phone</label><input id="contact-phone">
+        <label>Address</label><input id="contact-address">
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-connection">
+      <fieldset>
+        <legend>GitHub connection</legend>
+        <div class="row row2">
+          <div><label>GitHub username</label><input id="gh-owner" placeholder="yourusername"></div>
+          <div><label>Repository name</label><input id="gh-repo" placeholder="my-vya-site"></div>
+        </div>
+        <div class="row row2">
+          <div><label>Branch</label><input id="gh-branch" value="main"></div>
+          <div><label>data.json path</label><input id="gh-path" value="data.json"></div>
+        </div>
+        <label>Personal access token (Contents: read/write on this repo only)</label>
+        <input id="gh-token" type="password" placeholder="ghp_...">
+        <p class="hint">Stored only in this browser. Never share it. Create one at github.com/settings/personal-access-tokens/new</p>
+        <button type="button" class="btn-add" onclick="loadData()">🔄 Reload current content</button>
+      </fieldset>
+    </div>
+
   </div>
-  <label>Personal access token (fine-grained, "Contents: read/write" on this repo only)</label>
-  <input id="gh-token" type="password" placeholder="ghp_...">
-  <p class="hint">Never share this token. It's stored only in this browser (localStorage), never sent anywhere except GitHub's API. Create one at
-    <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a>.</p>
-  <button class="btn-load" onclick="loadData()">Load current content</button>
-</fieldset>
-
-<form id="form">
-  <fieldset>
-    <legend>Hero section</legend>
-    <label>Top tag</label><input id="hero-tag">
-    <label>Headline</label><input id="hero-title">
-    <label>Subtitle</label><textarea id="hero-sub"></textarea>
-    <label>Stats (number / label)</label>
-    <div id="stats-list"></div>
-  </fieldset>
-
-  <fieldset>
-    <legend>About section</legend>
-    <label>Intro paragraph</label><textarea id="about-lead"></textarea>
-    <label>Cards (icon / title / text)</label>
-    <div id="cards-list"></div>
-  </fieldset>
-
-  <fieldset>
-    <legend>Programs section</legend>
-    <label>Intro paragraph</label><textarea id="prog-lead"></textarea>
-    <label>Pillars (title / text)</label>
-    <div id="pillars-list"></div>
-  </fieldset>
-
-  <fieldset>
-    <legend>Event</legend>
-    <label>Title</label><input id="event-title">
-    <label>Text</label><textarea id="event-text"></textarea>
-  </fieldset>
-
-  <fieldset>
-    <legend>Join section</legend>
-    <label>Title</label><input id="join-title">
-    <label>Text</label><textarea id="join-text"></textarea>
-  </fieldset>
-
-  <fieldset>
-    <legend>Contact (footer)</legend>
-    <label>Email</label><input id="contact-email">
-    <label>Phone</label><input id="contact-phone">
-    <label>Address</label><input id="contact-address">
-  </fieldset>
-
-  <button type="button" class="btn-save" onclick="saveData()">💾 Save to GitHub</button>
-</form>
-<div id="status"></div>
+</div>
 
 <script>
+document.querySelectorAll('.navitem[data-view]').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    document.querySelectorAll('.navitem[data-view]').forEach(i=>i.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('v-'+item.dataset.view).classList.add('active');
+    document.getElementById('view-title').textContent = item.textContent.trim().replace(/^\S+\s/,'');
+  });
+});
+
 const gh = ['gh-owner','gh-repo','gh-branch','gh-path','gh-token'];
 gh.forEach(id=>{ const el=document.getElementById(id); const saved=localStorage.getItem(id); if(saved) el.value=saved; el.addEventListener('change',()=>localStorage.setItem(id,el.value)); });
 
@@ -127,11 +199,11 @@ async function loadData(){
     status.className='ok'; status.textContent='Loaded current content from GitHub.';
   }catch(e){
     status.className='err'; status.textContent='Could not load: '+e.message+' — trying local data.json instead.';
-    try{
-      const r2 = await fetch('data.json'); const c2 = await r2.json(); fillForm(c2);
-    }catch(e2){}
+    try{ const r2 = await fetch('data.json'); const c2 = await r2.json(); fillForm(c2); }catch(e2){}
   }
 }
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
 function fillForm(d){
   document.getElementById('hero-tag').value = d.hero.tag;
@@ -142,6 +214,7 @@ function fillForm(d){
       <input data-g="stats" data-i="${i}" data-k="num" value="${esc(s.num)}" placeholder="Number">
       <input data-g="stats" data-i="${i}" data-k="label" value="${esc(s.label)}" placeholder="Label">
     </div>`).join('');
+  document.getElementById('about-lead').value = d.about.lead;
   document.getElementById('cards-list').innerHTML = d.about.cards.map((c,i)=>`
     <div class="card-item">
       <div class="row row2">
@@ -156,6 +229,7 @@ function fillForm(d){
       <input data-g="pillars" data-i="${i}" data-k="title" value="${esc(p.title)}" placeholder="Title">
       <textarea data-g="pillars" data-i="${i}" data-k="text" placeholder="Text">${esc(p.text)}</textarea>
     </div>`).join('');
+  renderTeam(d.team||[]);
   document.getElementById('event-title').value = d.event.title;
   document.getElementById('event-text').value = d.event.text;
   document.getElementById('join-title').value = d.join.title;
@@ -163,14 +237,30 @@ function fillForm(d){
   document.getElementById('contact-email').value = d.contact.email;
   document.getElementById('contact-phone').value = d.contact.phone;
   document.getElementById('contact-address').value = d.contact.address;
+
+  document.getElementById('d-stats').textContent = d.stats.length;
+  document.getElementById('d-team').textContent = (d.team||[]).length;
+  document.getElementById('d-cards').textContent = d.about.cards.length;
+  document.getElementById('d-pillars').textContent = d.programs.pillars.length;
 }
 
-function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+let teamData = [];
+function renderTeam(team){
+  teamData = team;
+  document.getElementById('team-list').innerHTML = teamData.map((m,i)=>`
+    <div class="card-item row row2">
+      <input value="${esc(m.name)}" placeholder="Name" onchange="teamData[${i}].name=this.value">
+      <input value="${esc(m.role)}" placeholder="Role" onchange="teamData[${i}].role=this.value">
+      <button type="button" class="rm" onclick="removeTeam(${i})">✕ remove</button>
+    </div>`).join('');
+}
+function addTeam(){ teamData.push({name:'',role:''}); renderTeam(teamData); }
+function removeTeam(i){ teamData.splice(i,1); renderTeam(teamData); }
 
-function collectGroup(name, keys){
+function collectGroup(name){
   const items = [...document.querySelectorAll(`[data-g="${name}"]`)];
   const byIndex = {};
-  items.forEach(el=>{ const i=el.dataset.i; byIndex[i] = byIndex[i]||{}; byIndex[i][el.dataset.k]=el.value; });
+  items.forEach(el=>{ const i=el.dataset.i; byIndex[i]=byIndex[i]||{}; byIndex[i][el.dataset.k]=el.value; });
   return Object.keys(byIndex).sort((a,b)=>a-b).map(i=>byIndex[i]);
 }
 
@@ -180,6 +270,7 @@ function buildData(){
     stats: collectGroup('stats'),
     about: { lead: document.getElementById('about-lead').value, cards: collectGroup('cards') },
     programs: { lead: document.getElementById('prog-lead').value, pillars: collectGroup('pillars') },
+    team: teamData.filter(m=>m.name || m.role),
     event: { title: document.getElementById('event-title').value, text: document.getElementById('event-text').value },
     join: { title: document.getElementById('join-title').value, text: document.getElementById('join-text').value },
     contact: { email: document.getElementById('contact-email').value, phone: document.getElementById('contact-phone').value, address: document.getElementById('contact-address').value }
@@ -190,7 +281,7 @@ async function saveData(){
   const status = document.getElementById('status');
   const token = document.getElementById('gh-token').value.trim();
   const branch = document.getElementById('gh-branch').value.trim() || 'main';
-  if(!token){ status.className='err'; status.textContent='Add a GitHub token first.'; return; }
+  if(!token){ status.className='err'; status.textContent='Add a GitHub token in Settings → GitHub Connection first.'; return; }
   const data = buildData();
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
   try{
@@ -210,7 +301,7 @@ async function saveData(){
   }
 }
 
-window.addEventListener('load', ()=>{ if(document.getElementById('gh-owner').value) loadData(); });
+window.addEventListener('load', ()=>{ if(document.getElementById('gh-owner').value) loadData(); else fetch('data.json').then(r=>r.json()).then(fillForm); });
 </script>
 </body>
 </html>
