@@ -199,7 +199,7 @@ async function loadData(){
     status.className='ok'; status.textContent='Loaded current content from GitHub.';
   }catch(e){
     status.className='err'; status.textContent='Could not load: '+e.message+' — trying local data.json instead.';
-    try{ const r2 = await fetch('data.json'); const c2 = await r2.json(); fillForm(c2); }catch(e2){}
+    try{ const r2 = await fetch('data.json?v=' + Date.now()); const c2 = await r2.json(); fillForm(c2); }catch(e2){}
   }
 }
 
@@ -301,7 +301,7 @@ async function saveData(){
   }
 }
 
-window.addEventListener('load', ()=>{ if(document.getElementById('gh-owner').value) loadData(); else fetch('data.json').then(r=>r.json()).then(fillForm); });
+window.addEventListener('load', ()=>{ if(document.getElementById('gh-owner').value) loadData(); else fetch('data.json?v=' + Date.now()).then(r=>r.json()).then(fillForm); });
 </script>
 </body>
 </html>

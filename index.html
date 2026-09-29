@@ -10,8 +10,6 @@
 <style>
   :root{--navy:#0b1330;--navy2:#101c45;--blue:#2b6cf6;--purple:#7b2ff7;--ink:#0f1533;--paper:#f5f7fd;--muted:#5b6382;--line:#e2e6f5;
     box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
-  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--paper:#0b1130;--ink:#eef1ff;--muted:#a6acc9;--line:#232c55;} }
-  :root[data-theme="dark"]{--paper:#0b1130;--ink:#eef1ff;--muted:#a6acc9;--line:#232c55;}
   html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth;}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.6;overflow-x:hidden;}
@@ -172,7 +170,7 @@
 </footer>
 
 <script>
-fetch('data.json').then(r=>r.json()).then(d=>{
+fetch('data.json?v=' + Date.now()).then(r=>r.json()).then(d=>{
   document.getElementById('h-tag').textContent = d.hero.tag;
   document.getElementById('h-title').textContent = d.hero.title;
   document.getElementById('h-sub').textContent = d.hero.subtitle;
