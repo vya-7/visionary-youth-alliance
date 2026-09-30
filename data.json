@@ -5,65 +5,31 @@
     "subtitle": "Visionary Youth Alliance brings together young people across Bangladesh to turn ideas into leadership, service, and change."
   },
   "stats": [
-    {
-      "num": "10+",
-      "label": "Founding Members"
-    },
-    {
-      "num": "3+",
-      "label": "Programs Planned"
-    },
-    {
-      "num": "2026",
-      "label": "Year Founded"
-    }
+    { "num": "10+", "label": "Founding Members" },
+    { "num": "3+", "label": "Programs Planned" },
+    { "num": "2026", "label": "Year Founded" }
   ],
   "about": {
     "lead": "Visionary Youth Alliance (VYA) is a youth-led organization dedicated to developing leadership, creativity, and civic responsibility among young people across Bangladesh — starting with ideas, and following through with action.",
     "cards": [
-      {
-        "icon": "🧭",
-        "title": "Vision-led",
-        "text": "Every project starts with a clear goal and a plan to get there, not just an idea."
-      },
-      {
-        "icon": "🤝",
-        "title": "Youth-led",
-        "text": "Run by young people, for young people — decisions made by the members who do the work."
-      },
-      {
-        "icon": "🌱",
-        "title": "Community first",
-        "text": "Every initiative is measured by the real difference it makes in someone's life."
-      }
+      { "icon": "🧭", "title": "Vision-led", "text": "Every project starts with a clear goal and a plan to get there, not just an idea." },
+      { "icon": "🤝", "title": "Youth-led", "text": "Run by young people, for young people — decisions made by the members who do the work." },
+      { "icon": "🌱", "title": "Community first", "text": "Every initiative is measured by the real difference it makes in someone's life." }
     ]
   },
   "programs": {
     "lead": "Our work is organized around a few clear commitments, not a long list of one-off activities.",
     "pillars": [
-      {
-        "title": "Leadership Development",
-        "text": "Workshops and mentorship that build confident, capable young leaders."
-      },
-      {
-        "title": "Community Service",
-        "text": "Local projects that respond directly to needs in our own neighborhoods."
-      },
-      {
-        "title": "Skill-Building Events",
-        "text": "Competitions, quizzes, and workshops that sharpen real, usable skills."
-      },
-      {
-        "title": "Campus Network",
-        "text": "Ambassadors connecting students across schools and universities."
-      }
+      { "title": "Leadership Development", "text": "Workshops and mentorship that build confident, capable young leaders." },
+      { "title": "Community Service", "text": "Local projects that respond directly to needs in our own neighborhoods." },
+      { "title": "Skill-Building Events", "text": "Competitions, quizzes, and workshops that sharpen real, usable skills." },
+      { "title": "Campus Network", "text": "Ambassadors connecting students across schools and universities." }
     ]
   },
   "team": [
-    {
-      "name": "Fahad Abdur Rahman ",
-      "role": "Founder & Chairman "
-    }
+    { "name": "Add Name", "role": "Founder & President" },
+    { "name": "Add Name", "role": "Vice President" },
+    { "name": "Add Name", "role": "General Secretary" }
   ],
   "event": {
     "title": "First Event — Coming Soon",
