@@ -119,7 +119,12 @@
       <fieldset>
         <legend>Event</legend>
         <label>Title</label><input id="event-title">
-        <label>Text</label><textarea id="event-text"></textarea>
+        <div class="row row2">
+          <div><label>Date</label><input id="event-date" placeholder="e.g. 15 November 2026"></div>
+          <div><label>Time</label><input id="event-time" placeholder="e.g. 4:00 PM"></div>
+        </div>
+        <label>Location</label><input id="event-location" placeholder="e.g. Dhaka, Bangladesh">
+        <label>Description</label><textarea id="event-text"></textarea>
       </fieldset>
     </div>
 
@@ -231,6 +236,9 @@ function fillForm(d){
     </div>`).join('');
   renderTeam(d.team||[]);
   document.getElementById('event-title').value = d.event.title;
+  document.getElementById('event-date').value = d.event.date || '';
+  document.getElementById('event-time').value = d.event.time || '';
+  document.getElementById('event-location').value = d.event.location || '';
   document.getElementById('event-text').value = d.event.text;
   document.getElementById('join-title').value = d.join.title;
   document.getElementById('join-text').value = d.join.text;
@@ -271,7 +279,7 @@ function buildData(){
     about: { lead: document.getElementById('about-lead').value, cards: collectGroup('cards') },
     programs: { lead: document.getElementById('prog-lead').value, pillars: collectGroup('pillars') },
     team: teamData.filter(m=>m.name || m.role),
-    event: { title: document.getElementById('event-title').value, text: document.getElementById('event-text').value },
+    event: { title: document.getElementById('event-title').value, date: document.getElementById('event-date').value, time: document.getElementById('event-time').value, location: document.getElementById('event-location').value, text: document.getElementById('event-text').value },
     join: { title: document.getElementById('join-title').value, text: document.getElementById('join-text').value },
     contact: { email: document.getElementById('contact-email').value, phone: document.getElementById('contact-phone').value, address: document.getElementById('contact-address').value }
   };
