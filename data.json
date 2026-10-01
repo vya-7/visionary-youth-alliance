@@ -39,5 +39,11 @@
     "email": "Add your email here",
     "phone": "Add your phone here",
     "address": "Bangladesh"
+  },
+  "social": {
+    "facebook": "",
+    "instagram": "",
+    "whatsapp": "",
+    "youtube": ""
   }
 }

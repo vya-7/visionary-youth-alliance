@@ -106,6 +106,7 @@
         <label>Intro paragraph</label><textarea id="prog-lead"></textarea>
         <label>Pillars (title / description / Google Form link)</label>
         <div id="pillars-list"></div>
+        <button type="button" class="btn-add" onclick="addPillar()">+ Add program</button>
       </fieldset>
     </div>
 
@@ -132,6 +133,14 @@
         <label>Email</label><input id="contact-email">
         <label>Phone</label><input id="contact-phone">
         <label>Address</label><input id="contact-address">
+      </fieldset>
+      <fieldset>
+        <legend>Social Media Links</legend>
+        <label>Facebook</label><input id="social-facebook" placeholder="https://facebook.com/...">
+        <label>Instagram</label><input id="social-instagram" placeholder="https://instagram.com/...">
+        <label>WhatsApp</label><input id="social-whatsapp" placeholder="https://wa.me/...">
+        <label>YouTube</label><input id="social-youtube" placeholder="https://youtube.com/...">
+        <p class="hint">Leave any field empty to hide that icon from the site footer.</p>
       </fieldset>
     </div>
 
@@ -219,18 +228,18 @@ function fillForm(d){
       <textarea data-g="cards" data-i="${i}" data-k="text" placeholder="Text">${esc(c.text)}</textarea>
     </div>`).join('');
   document.getElementById('prog-lead').value = d.programs.lead;
-  document.getElementById('pillars-list').innerHTML = d.programs.pillars.map((p,i)=>`
-    <div class="card-item">
-      <input data-g="pillars" data-i="${i}" data-k="title" value="${esc(p.title)}" placeholder="Title">
-      <textarea data-g="pillars" data-i="${i}" data-k="text" placeholder="Text">${esc(p.text)}</textarea>
-      <input data-g="pillars" data-i="${i}" data-k="link" value="${esc(p.link)}" placeholder="Google Form link (Register Now button)">
-    </div>`).join('');
+  renderPillars(d.programs.pillars || []);
   renderTeam(d.team||[]);
   document.getElementById('join-title').value = d.join.title;
   document.getElementById('join-text').value = d.join.text;
   document.getElementById('contact-email').value = d.contact.email;
   document.getElementById('contact-phone').value = d.contact.phone;
   document.getElementById('contact-address').value = d.contact.address;
+  const s = d.social || {};
+  document.getElementById('social-facebook').value = s.facebook || '';
+  document.getElementById('social-instagram').value = s.instagram || '';
+  document.getElementById('social-whatsapp').value = s.whatsapp || '';
+  document.getElementById('social-youtube').value = s.youtube || '';
 
   document.getElementById('d-stats').textContent = d.stats.length;
   document.getElementById('d-team').textContent = (d.team||[]).length;
@@ -251,6 +260,20 @@ function renderTeam(team){
 function addTeam(){ teamData.push({name:'',role:''}); renderTeam(teamData); }
 function removeTeam(i){ teamData.splice(i,1); renderTeam(teamData); }
 
+let pillarsData = [];
+function renderPillars(pillars){
+  pillarsData = pillars;
+  document.getElementById('pillars-list').innerHTML = pillarsData.map((p,i)=>`
+    <div class="card-item">
+      <input value="${esc(p.title)}" placeholder="Title" onchange="pillarsData[${i}].title=this.value">
+      <textarea placeholder="Description" onchange="pillarsData[${i}].text=this.value">${esc(p.text)}</textarea>
+      <input value="${esc(p.link)}" placeholder="Google Form link (Register Now button)" onchange="pillarsData[${i}].link=this.value">
+      <button type="button" class="rm" onclick="removePillar(${i})">✕ remove</button>
+    </div>`).join('');
+}
+function addPillar(){ pillarsData.push({title:'',text:'',link:''}); renderPillars(pillarsData); }
+function removePillar(i){ pillarsData.splice(i,1); renderPillars(pillarsData); }
+
 function collectGroup(name){
   const items = [...document.querySelectorAll(`[data-g="${name}"]`)];
   const byIndex = {};
@@ -263,10 +286,11 @@ function buildData(){
     hero: { tag: document.getElementById('hero-tag').value, title: document.getElementById('hero-title').value, subtitle: document.getElementById('hero-sub').value },
     stats: collectGroup('stats'),
     about: { lead: document.getElementById('about-lead').value, cards: collectGroup('cards') },
-    programs: { lead: document.getElementById('prog-lead').value, pillars: collectGroup('pillars') },
+    programs: { lead: document.getElementById('prog-lead').value, pillars: pillarsData.filter(p=>p.title || p.text || p.link) },
     team: teamData.filter(m=>m.name || m.role),
     join: { title: document.getElementById('join-title').value, text: document.getElementById('join-text').value },
-    contact: { email: document.getElementById('contact-email').value, phone: document.getElementById('contact-phone').value, address: document.getElementById('contact-address').value }
+    contact: { email: document.getElementById('contact-email').value, phone: document.getElementById('contact-phone').value, address: document.getElementById('contact-address').value },
+    social: { facebook: document.getElementById('social-facebook').value, instagram: document.getElementById('social-instagram').value, whatsapp: document.getElementById('social-whatsapp').value, youtube: document.getElementById('social-youtube').value }
   };
 }
 
