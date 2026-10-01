@@ -57,7 +57,6 @@
   <div class="navitem" data-view="home">🏠 Home Page</div>
   <div class="navitem" data-view="team">👥 Team Members</div>
   <div class="navgroup">Notice</div>
-  <div class="navitem" data-view="event">🚀 Events</div>
   <div class="navitem" data-view="join">🤝 Join Section</div>
   <div class="navgroup">Settings</div>
   <div class="navitem" data-view="contact">📬 Contact Info</div>
@@ -112,19 +111,6 @@
         <div id="team-list"></div>
         <button type="button" class="btn-add" onclick="addTeam()">+ Add team member</button>
         <p class="hint">Leave empty and save to hide the Team section from the site.</p>
-      </fieldset>
-    </div>
-
-    <div class="view" id="v-event">
-      <fieldset>
-        <legend>Event</legend>
-        <label>Title</label><input id="event-title">
-        <div class="row row2">
-          <div><label>Date</label><input id="event-date" placeholder="e.g. 15 November 2026"></div>
-          <div><label>Time</label><input id="event-time" placeholder="e.g. 4:00 PM"></div>
-        </div>
-        <label>Location</label><input id="event-location" placeholder="e.g. Dhaka, Bangladesh">
-        <label>Description</label><textarea id="event-text"></textarea>
       </fieldset>
     </div>
 
@@ -233,13 +219,9 @@ function fillForm(d){
     <div class="card-item">
       <input data-g="pillars" data-i="${i}" data-k="title" value="${esc(p.title)}" placeholder="Title">
       <textarea data-g="pillars" data-i="${i}" data-k="text" placeholder="Text">${esc(p.text)}</textarea>
+      <input data-g="pillars" data-i="${i}" data-k="link" value="${esc(p.link)}" placeholder="Google Form link (Register Now button)">
     </div>`).join('');
   renderTeam(d.team||[]);
-  document.getElementById('event-title').value = d.event.title;
-  document.getElementById('event-date').value = d.event.date || '';
-  document.getElementById('event-time').value = d.event.time || '';
-  document.getElementById('event-location').value = d.event.location || '';
-  document.getElementById('event-text').value = d.event.text;
   document.getElementById('join-title').value = d.join.title;
   document.getElementById('join-text').value = d.join.text;
   document.getElementById('contact-email').value = d.contact.email;
@@ -279,7 +261,6 @@ function buildData(){
     about: { lead: document.getElementById('about-lead').value, cards: collectGroup('cards') },
     programs: { lead: document.getElementById('prog-lead').value, pillars: collectGroup('pillars') },
     team: teamData.filter(m=>m.name || m.role),
-    event: { title: document.getElementById('event-title').value, date: document.getElementById('event-date').value, time: document.getElementById('event-time').value, location: document.getElementById('event-location').value, text: document.getElementById('event-text').value },
     join: { title: document.getElementById('join-title').value, text: document.getElementById('join-text').value },
     contact: { email: document.getElementById('contact-email').value, phone: document.getElementById('contact-phone').value, address: document.getElementById('contact-address').value }
   };
