@@ -176,8 +176,21 @@
   <div class="fbottom">© 2026 Visionary Youth Alliance. All Rights Reserved.<br>Developed by Fahad Abdur Rahman — Founder &amp; Chairman of <a href="https://talentversebd.github.io/tvbd/" target="_blank" rel="noopener" style="color:#9ec1ff;text-decoration:underline;">TalentVerse Bangladesh</a></div>
 </footer>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-fetch('data.json?v=' + Date.now()).then(r=>r.json()).then(d=>{
+const firebaseConfig = {
+  apiKey: "AIzaSyAJfXWIdIx3Ukpot_5D419nZHG9x1RVtWQ",
+  authDomain: "vya-web.firebaseapp.com",
+  projectId: "vya-web",
+  storageBucket: "vya-web.firebasestorage.app",
+  messagingSenderId: "809021745111",
+  appId: "1:809021745111:web:97d25f5a0477ccfb24cd92"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function renderSite(d){
   document.getElementById('h-tag').textContent = d.hero.tag;
   document.getElementById('h-title').textContent = d.hero.title;
   document.getElementById('h-sub').textContent = d.hero.subtitle;
@@ -199,7 +212,12 @@ fetch('data.json?v=' + Date.now()).then(r=>r.json()).then(d=>{
     const html = Object.keys(icons).filter(k=>d.social[k]).map(k=>`<a href="${d.social[k]}" target="_blank" rel="noopener" aria-label="${k}">${icons[k]}</a>`).join('');
     document.getElementById('f-social').innerHTML = html;
   }
-}).catch(()=>{ document.querySelector('.hero').insertAdjacentHTML('beforeend','<p style="color:#f88;margin-top:16px">Could not load data.json — make sure it is uploaded next to index.html.</p>'); });
+}
+
+db.collection('site').doc('content').get().then(docSnap=>{
+  if(docSnap.exists){ renderSite(docSnap.data()); }
+  else { fetch('data.json?v=' + Date.now()).then(r=>r.json()).then(renderSite); }
+}).catch(()=>{ fetch('data.json?v=' + Date.now()).then(r=>r.json()).then(renderSite); });
 </script>
 </body>
 </html>

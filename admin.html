@@ -61,14 +61,14 @@
   <div class="navitem" data-view="join">🤝 Join Section</div>
   <div class="navgroup">Settings</div>
   <div class="navitem" data-view="contact">📬 Contact Info</div>
-  <div class="navitem" data-view="connection">🔑 GitHub Connection</div>
   <div class="navgroup"><a href="index.html">← Back to Site</a></div>
+  <div class="navgroup"><a href="#" onclick="firebase.auth().signOut();return false;">🚪 Logout</a></div>
 </div>
 
 <div id="main">
   <div id="topbar">
     <h1 id="view-title">Dashboard</h1>
-    <button class="btn-save" onclick="saveData()">💾 Save to GitHub</button>
+    <button class="btn-save" onclick="saveData()">💾 Save Changes</button>
   </div>
   <div id="status"></div>
   <div id="content">
@@ -80,7 +80,7 @@
         <div class="stat-box"><span>About cards</span><b id="d-cards">–</b></div>
         <div class="stat-box"><span>Program pillars</span><b id="d-pillars">–</b></div>
       </div>
-      <p class="hint" style="margin-top:16px">Use the sidebar to edit each part of the site, then click "Save to GitHub" at any time.</p>
+      <p class="hint" style="margin-top:16px">Use the sidebar to edit each part of the site, then click "Save Changes" at any time.</p>
     </div>
 
     <div class="view" id="v-home">
@@ -144,28 +144,52 @@
       </fieldset>
     </div>
 
-    <div class="view" id="v-connection">
-      <fieldset>
-        <legend>GitHub connection</legend>
-        <div class="row row2">
-          <div><label>GitHub username</label><input id="gh-owner" placeholder="yourusername"></div>
-          <div><label>Repository name</label><input id="gh-repo" placeholder="my-vya-site"></div>
-        </div>
-        <div class="row row2">
-          <div><label>Branch</label><input id="gh-branch" value="main"></div>
-          <div><label>data.json path</label><input id="gh-path" value="data.json"></div>
-        </div>
-        <label>Personal access token (Contents: read/write on this repo only)</label>
-        <input id="gh-token" type="password" placeholder="ghp_...">
-        <p class="hint">Stored only in this browser. Never share it. Create one at github.com/settings/personal-access-tokens/new</p>
-        <button type="button" class="btn-add" onclick="loadData()">🔄 Reload current content</button>
-      </fieldset>
-    </div>
-
   </div>
 </div>
 
+<div id="login-gate" style="position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:100;">
+  <div style="width:280px;">
+    <div class="brand" style="justify-content:center;margin-bottom:18px;"><span>V</span>VYA Admin</div>
+    <fieldset>
+      <legend>Login</legend>
+      <label>Email</label><input id="login-email" type="email" placeholder="you@email.com">
+      <label>Password</label><input id="login-password" type="password" placeholder="••••••••">
+      <button type="button" class="btn-save" style="width:100%;margin-top:14px;" onclick="doLogin()">Login</button>
+      <p id="login-err" class="hint" style="color:#f87171;"></p>
+    </fieldset>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAJfXWIdIx3Ukpot_5D419nZHG9x1RVtWQ",
+  authDomain: "vya-web.firebaseapp.com",
+  projectId: "vya-web",
+  storageBucket: "vya-web.firebasestorage.app",
+  messagingSenderId: "809021745111",
+  appId: "1:809021745111:web:97d25f5a0477ccfb24cd92"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const docRef = db.collection('site').doc('content');
+
+function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-password').value;
+  const err = document.getElementById('login-err');
+  err.textContent = '';
+  auth.signInWithEmailAndPassword(email, pass).catch(e=>{ err.textContent = e.message; });
+}
+
+auth.onAuthStateChanged(user=>{
+  document.getElementById('login-gate').style.display = user ? 'none' : 'flex';
+  if(user) loadData();
+});
+
 document.querySelectorAll('.navitem[data-view]').forEach(item=>{
   item.addEventListener('click', ()=>{
     document.querySelectorAll('.navitem[data-view]').forEach(i=>i.classList.remove('active'));
@@ -176,34 +200,19 @@ document.querySelectorAll('.navitem[data-view]').forEach(item=>{
   });
 });
 
-const gh = ['gh-owner','gh-repo','gh-branch','gh-path','gh-token'];
-gh.forEach(id=>{ const el=document.getElementById(id); const saved=localStorage.getItem(id); if(saved) el.value=saved; el.addEventListener('change',()=>localStorage.setItem(id,el.value)); });
-
-let currentSha = null;
-
-function apiUrl(){
-  const owner=document.getElementById('gh-owner').value.trim();
-  const repo=document.getElementById('gh-repo').value.trim();
-  const path=document.getElementById('gh-path').value.trim();
-  return `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-}
-
 async function loadData(){
-  const branch = document.getElementById('gh-branch').value.trim() || 'main';
-  const token = document.getElementById('gh-token').value.trim();
   const status = document.getElementById('status');
   try{
-    const headers = token ? {Authorization:`Bearer ${token}`, Accept:'application/vnd.github+json'} : {Accept:'application/vnd.github+json'};
-    const res = await fetch(`${apiUrl()}?ref=${branch}`, {headers});
-    if(!res.ok) throw new Error(`GitHub responded ${res.status}. Check owner/repo/path/token.`);
-    const json = await res.json();
-    currentSha = json.sha;
-    const content = JSON.parse(decodeURIComponent(escape(atob(json.content))));
-    fillForm(content);
-    status.className='ok'; status.textContent='Loaded current content from GitHub.';
+    const snap = await docRef.get();
+    if(snap.exists){
+      fillForm(snap.data());
+      status.className='ok'; status.textContent='Loaded current content.';
+    } else {
+      const r2 = await fetch('data.json?v=' + Date.now()); const c2 = await r2.json(); fillForm(c2);
+      status.className='ok'; status.textContent='No saved content yet — showing starter content. Click Save to create it.';
+    }
   }catch(e){
-    status.className='err'; status.textContent='Could not load: '+e.message+' — trying local data.json instead.';
-    try{ const r2 = await fetch('data.json?v=' + Date.now()); const c2 = await r2.json(); fillForm(c2); }catch(e2){}
+    status.className='err'; status.textContent='Could not load: '+e.message;
   }
 }
 
@@ -296,29 +305,14 @@ function buildData(){
 
 async function saveData(){
   const status = document.getElementById('status');
-  const token = document.getElementById('gh-token').value.trim();
-  const branch = document.getElementById('gh-branch').value.trim() || 'main';
-  if(!token){ status.className='err'; status.textContent='Add a GitHub token in Settings → GitHub Connection first.'; return; }
   const data = buildData();
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
   try{
-    if(!currentSha){
-      const res = await fetch(`${apiUrl()}?ref=${branch}`, {headers:{Authorization:`Bearer ${token}`, Accept:'application/vnd.github+json'}});
-      if(res.ok){ const j = await res.json(); currentSha = j.sha; }
-    }
-    const body = { message:'Update site content via admin panel', content, branch };
-    if(currentSha) body.sha = currentSha;
-    const res = await fetch(apiUrl(), { method:'PUT', headers:{Authorization:`Bearer ${token}`, Accept:'application/vnd.github+json'}, body: JSON.stringify(body) });
-    const j = await res.json();
-    if(!res.ok) throw new Error(j.message || `GitHub responded ${res.status}`);
-    currentSha = j.content.sha;
-    status.className='ok'; status.textContent='Saved! Your live site will update in a few seconds.';
+    await docRef.set(data);
+    status.className='ok'; status.textContent='Saved! Your live site will update immediately.';
   }catch(e){
     status.className='err'; status.textContent='Save failed: '+e.message;
   }
 }
-
-window.addEventListener('load', ()=>{ if(document.getElementById('gh-owner').value) loadData(); else fetch('data.json?v=' + Date.now()).then(r=>r.json()).then(fillForm); });
 </script>
 </body>
 </html>
