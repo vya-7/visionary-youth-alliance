@@ -59,10 +59,18 @@
   .pillars{display:grid;gap:18px;}
   @media(min-width:720px){.pillars{grid-template-columns:repeat(2,1fr);}}
   .pillar{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);border-radius:16px;padding:26px;display:flex;flex-direction:column;}
-  .pillar .icon-badge{width:50px;height:50px;border-radius:13px;background:linear-gradient(100deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:16px;}
+  .pillar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .pillar .icon-badge{width:50px;height:50px;border-radius:13px;background:linear-gradient(100deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+  .status-badge{font-size:0.72rem;font-weight:700;padding:5px 12px;border-radius:999px;white-space:nowrap;}
+  .status-open{background:rgba(34,197,94,0.15);color:#4ade80;}
+  .status-upcoming{background:rgba(251,191,36,0.15);color:#fbbf24;}
+  .status-default{background:rgba(148,163,184,0.15);color:#94a3b8;}
   .pillar .n{font-weight:700;font-size:0.72rem;letter-spacing:.06em;text-transform:uppercase;color:#8fb4ff;margin-bottom:6px;}
-  .pillar h3{font-size:1.2rem;margin-bottom:10px;}
-  .pillar p{color:#b9c2ee;font-size:0.92rem;flex:1;margin-bottom:20px;line-height:1.6;}
+  .pillar h3{font-size:1.2rem;margin-bottom:6px;}
+  .pillar .meta-line{color:#8fb4ff;font-size:0.8rem;font-weight:600;margin-bottom:10px;}
+  .pillar p{color:#b9c2ee;font-size:0.92rem;margin-bottom:14px;line-height:1.6;}
+  .pillar .highlights{list-style:none;margin:0 0 20px;flex:1;}
+  .pillar .highlights li{color:#b9c2ee;font-size:0.85rem;margin-bottom:6px;padding-left:4px;}
   .pillar .reg-btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(100deg,var(--blue),var(--purple));color:#fff;font-size:0.9rem;font-weight:600;padding:11px 22px;border-radius:9px;align-self:flex-start;}
   .pillar .reg-btn:hover{opacity:0.92;}
 
@@ -164,7 +172,16 @@ const db = firebase.firestore();
 
 function render(d){
   document.getElementById('p-lead').textContent = d.programs.lead;
-  document.getElementById('p-pillars').innerHTML = d.programs.pillars.map((p,i)=>`<div class="pillar"><div class="icon-badge">${p.icon||'🚀'}</div><div class="n">Program 0${i+1}</div><h3>${p.title}</h3><p>${p.text}</p>${p.link?`<a class="reg-btn" href="${p.link}" target="_blank" rel="noopener">Register Now →</a>`:''}</div>`).join('');
+  function statusClass(s){ s=(s||'').toLowerCase(); if(s.includes('open')||s.includes('active')||s.includes('ongoing')) return 'status-open'; if(s.includes('upcoming')||s.includes('coming')) return 'status-upcoming'; return 'status-default'; }
+  document.getElementById('p-pillars').innerHTML = d.programs.pillars.map((p,i)=>`<div class="pillar">
+    <div class="pillar-top"><div class="icon-badge">${p.icon||'🚀'}</div>${p.status?`<span class="status-badge ${statusClass(p.status)}">${p.status}</span>`:''}</div>
+    <div class="n">Program 0${i+1}</div>
+    <h3>${p.title}</h3>
+    ${p.meta?`<p class="meta-line">${p.meta}</p>`:''}
+    <p>${p.text}</p>
+    ${(p.highlights&&p.highlights.length)?`<ul class="highlights">${p.highlights.map(h=>`<li>✓ ${h}</li>`).join('')}</ul>`:''}
+    ${p.link?`<a class="reg-btn" href="${p.link}" target="_blank" rel="noopener">Register Now →</a>`:''}
+  </div>`).join('');
 }
 db.collection('site').doc('content').get().then(s=>{
   if(s.exists) render(s.data());
