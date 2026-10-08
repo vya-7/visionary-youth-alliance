@@ -273,14 +273,15 @@ let pillarsData = [];
 function renderPillars(pillars){
   pillarsData = pillars;
   document.getElementById('pillars-list').innerHTML = pillarsData.map((p,i)=>`
-    <div class="card-item">
+    <div class="card-item row row2">
+      <input value="${esc(p.icon)}" placeholder="Emoji icon (e.g. 🎯)" onchange="pillarsData[${i}].icon=this.value">
       <input value="${esc(p.title)}" placeholder="Title" onchange="pillarsData[${i}].title=this.value">
-      <textarea placeholder="Description" onchange="pillarsData[${i}].text=this.value">${esc(p.text)}</textarea>
-      <input value="${esc(p.link)}" placeholder="Google Form link (Register Now button)" onchange="pillarsData[${i}].link=this.value">
+      <textarea style="grid-column:1/-1" placeholder="Description" onchange="pillarsData[${i}].text=this.value">${esc(p.text)}</textarea>
+      <input style="grid-column:1/-1" value="${esc(p.link)}" placeholder="Google Form link (Register Now button)" onchange="pillarsData[${i}].link=this.value">
       <button type="button" class="rm" onclick="removePillar(${i})">✕ remove</button>
     </div>`).join('');
 }
-function addPillar(){ pillarsData.push({title:'',text:'',link:''}); renderPillars(pillarsData); }
+function addPillar(){ pillarsData.push({icon:'🚀',title:'',text:'',link:''}); renderPillars(pillarsData); }
 function removePillar(i){ pillarsData.splice(i,1); renderPillars(pillarsData); }
 
 function collectGroup(name){

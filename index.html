@@ -56,13 +56,15 @@
   .card p{color:var(--muted);font-size:0.92rem;}
   .band{background:var(--navy2);color:#fff;}
   .band .eyebrow{color:#9ec1ff;} .band .lead{color:#b9c2ee;}
-  .pillars{display:grid;gap:14px;}
+  .pillars{display:grid;gap:18px;}
   @media(min-width:720px){.pillars{grid-template-columns:repeat(2,1fr);}}
-  .pillar{border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:20px;display:flex;flex-direction:column;}
-  .pillar .n{font-weight:800;font-size:1.1rem;color:#8fb4ff;margin-bottom:8px;}
-  .pillar h3{font-size:1.05rem;margin-bottom:6px;}
-  .pillar p{color:#b9c2ee;font-size:0.88rem;flex:1;margin-bottom:14px;}
-  .pillar .reg-btn{align-self:flex-start;background:linear-gradient(100deg,var(--blue),var(--purple));color:#fff;font-size:0.85rem;font-weight:600;padding:9px 18px;border-radius:8px;}
+  .pillar{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);border-radius:16px;padding:26px;display:flex;flex-direction:column;}
+  .pillar .icon-badge{width:50px;height:50px;border-radius:13px;background:linear-gradient(100deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:16px;}
+  .pillar .n{font-weight:700;font-size:0.72rem;letter-spacing:.06em;text-transform:uppercase;color:#8fb4ff;margin-bottom:6px;}
+  .pillar h3{font-size:1.2rem;margin-bottom:10px;}
+  .pillar p{color:#b9c2ee;font-size:0.92rem;flex:1;margin-bottom:20px;line-height:1.6;}
+  .pillar .reg-btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(100deg,var(--blue),var(--purple));color:#fff;font-size:0.9rem;font-weight:600;padding:11px 22px;border-radius:9px;align-self:flex-start;}
+  .pillar .reg-btn:hover{opacity:0.92;}
 
   .join{text-align:center;background:linear-gradient(100deg,var(--blue),var(--purple));color:#fff;border-radius:20px;padding:44px 24px;margin:0 24px;}
   .join h2{margin:0 auto 10px;color:#fff;}
@@ -198,7 +200,7 @@ function renderSite(d){
   document.getElementById('a-lead').textContent = d.about.lead;
   document.getElementById('a-cards').innerHTML = d.about.cards.map(c=>`<div class="card"><div class="ic">${c.icon}</div><h3>${c.title}</h3><p>${c.text}</p></div>`).join('');
   document.getElementById('p-lead').textContent = d.programs.lead;
-  document.getElementById('p-pillars').innerHTML = d.programs.pillars.map((p,i)=>`<div class="pillar"><div class="n">0${i+1}</div><h3>${p.title}</h3><p>${p.text}</p>${p.link?`<a class="reg-btn" href="${p.link}" target="_blank" rel="noopener">Register Now</a>`:''}</div>`).join('');
+  document.getElementById('p-pillars').innerHTML = d.programs.pillars.map((p,i)=>`<div class="pillar"><div class="icon-badge">${p.icon||'🚀'}</div><div class="n">Program 0${i+1}</div><h3>${p.title}</h3><p>${p.text}</p>${p.link?`<a class="reg-btn" href="${p.link}" target="_blank" rel="noopener">Register Now →</a>`:''}</div>`).join('');
   if(d.team && d.team.length){
     document.getElementById('team').style.display = 'block';
     document.getElementById('t-team').innerHTML = d.team.map(m=>`<div class="card"><div class="ic">👤</div><h3>${m.name}</h3><p>${m.role}</p></div>`).join('');

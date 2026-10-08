@@ -20,10 +20,10 @@
   "programs": {
     "lead": "Our work is organized around a few clear commitments, not a long list of one-off activities.",
     "pillars": [
-      { "title": "Leadership Development", "text": "Workshops and mentorship that build confident, capable young leaders.", "link": "https://forms.google.com/your-form-link" },
-      { "title": "Community Service", "text": "Local projects that respond directly to needs in our own neighborhoods.", "link": "https://forms.google.com/your-form-link" },
-      { "title": "Skill-Building Events", "text": "Competitions, quizzes, and workshops that sharpen real, usable skills.", "link": "https://forms.google.com/your-form-link" },
-      { "title": "Campus Network", "text": "Ambassadors connecting students across schools and universities.", "link": "https://forms.google.com/your-form-link" }
+      { "icon": "🎯", "title": "Leadership Development", "text": "Workshops and mentorship that build confident, capable young leaders.", "link": "https://forms.google.com/your-form-link" },
+      { "icon": "🤲", "title": "Community Service", "text": "Local projects that respond directly to needs in our own neighborhoods.", "link": "https://forms.google.com/your-form-link" },
+      { "icon": "🏆", "title": "Skill-Building Events", "text": "Competitions, quizzes, and workshops that sharpen real, usable skills.", "link": "https://forms.google.com/your-form-link" },
+      { "icon": "🌐", "title": "Campus Network", "text": "Ambassadors connecting students across schools and universities.", "link": "https://forms.google.com/your-form-link" }
     ]
   },
   "team": [
