@@ -69,8 +69,14 @@
   .pillar h3{font-size:1.2rem;margin-bottom:6px;}
   .pillar .meta-line{color:#8fb4ff;font-size:0.8rem;font-weight:600;margin-bottom:10px;}
   .pillar p{color:#b9c2ee;font-size:0.92rem;margin-bottom:14px;line-height:1.6;}
-  .pillar .highlights{list-style:none;margin:0 0 20px;flex:1;}
+  .pillar .highlights{list-style:none;margin:12px 0 16px;}
   .pillar .highlights li{color:#b9c2ee;font-size:0.85rem;margin-bottom:6px;padding-left:4px;}
+  .pillar .snippet{color:#b9c2ee;font-size:0.92rem;margin-bottom:4px;line-height:1.6;flex:1;}
+  .pillar .full-content{display:none;}
+  .pillar.expanded .full-content{display:block;}
+  .pillar.expanded .snippet{display:none;}
+  .pillar .full-content p{color:#b9c2ee;font-size:0.92rem;line-height:1.6;margin-bottom:0;}
+  .read-more-btn{background:none;border:none;color:#8fb4ff;font-size:0.85rem;font-weight:700;padding:0;margin-bottom:18px;cursor:pointer;text-align:left;align-self:flex-start;}
   .pillar .reg-btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(100deg,var(--blue),var(--purple));color:#fff;font-size:0.9rem;font-weight:600;padding:11px 22px;border-radius:9px;align-self:flex-start;}
   .pillar .reg-btn:hover{opacity:0.92;}
 
@@ -209,15 +215,26 @@ function renderSite(d){
   document.getElementById('a-cards').innerHTML = d.about.cards.map(c=>`<div class="card"><div class="ic">${c.icon}</div><h3>${c.title}</h3><p>${c.text}</p></div>`).join('');
   document.getElementById('p-lead').textContent = d.programs.lead;
   function statusClass(s){ s=(s||'').toLowerCase(); if(s.includes('open')||s.includes('active')||s.includes('ongoing')) return 'status-open'; if(s.includes('upcoming')||s.includes('coming')) return 'status-upcoming'; return 'status-default'; }
-  document.getElementById('p-pillars').innerHTML = d.programs.pillars.map((p,i)=>`<div class="pillar">
+  function truncateText(t,len){ if(!t) return ''; return t.length>len ? t.slice(0,len).trim()+'…' : t; }
+  document.getElementById('p-pillars').innerHTML = d.programs.pillars.map((p,i)=>`<div class="pillar" id="pillar-${i}">
     <div class="pillar-top"><div class="icon-badge">${p.icon||'🚀'}</div>${p.status?`<span class="status-badge ${statusClass(p.status)}">${p.status}</span>`:''}</div>
     <div class="n">Program 0${i+1}</div>
     <h3>${p.title}</h3>
     ${p.meta?`<p class="meta-line">${p.meta}</p>`:''}
-    <p>${p.text}</p>
-    ${(p.highlights&&p.highlights.length)?`<ul class="highlights">${p.highlights.map(h=>`<li>✓ ${h}</li>`).join('')}</ul>`:''}
+    <p class="snippet">${truncateText(p.text,100)}</p>
+    <div class="full-content">
+      <p>${p.text}</p>
+      ${(p.highlights&&p.highlights.length)?`<ul class="highlights">${p.highlights.map(h=>`<li>✓ ${h}</li>`).join('')}</ul>`:''}
+    </div>
+    <button type="button" class="read-more-btn" onclick="toggleProgram(${i})">Read More ▾</button>
     ${p.link?`<a class="reg-btn" href="${p.link}" target="_blank" rel="noopener">Register Now →</a>`:''}
   </div>`).join('');
+  window.toggleProgram = function(i){
+    const card = document.getElementById('pillar-'+i);
+    const btn = card.querySelector('.read-more-btn');
+    const expanded = card.classList.toggle('expanded');
+    btn.textContent = expanded ? 'Read Less ▴' : 'Read More ▾';
+  };
   if(d.team && d.team.length){
     document.getElementById('team').style.display = 'block';
     document.getElementById('t-team').innerHTML = d.team.map(m=>`<div class="card"><div class="ic">👤</div><h3>${m.name}</h3><p>${m.role}</p></div>`).join('');
