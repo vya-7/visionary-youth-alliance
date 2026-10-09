@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog | Visionary Youth Alliance</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f9f9f9; color: #222; line-height: 1.6; }
+
+    nav {
+      background: #1a1a2e;
+      padding: 15px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    nav a { color: #fff; text-decoration: none; font-weight: 500; }
+    nav a:hover { color: #f4c430; }
+
+    .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    h1 { font-size: 2em; margin-bottom: 10px; color: #1a1a2e; }
+    .subtitle { color: #666; margin-bottom: 30px; }
+
+    #blog-list .blog-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+    }
+    #blog-list .blog-card:hover { transform: translateY(-3px); }
+    .blog-card h2 { font-size: 1.3em; margin-bottom: 8px; }
+    .blog-card h2 a { color: #1a1a2e; text-decoration: none; }
+    .blog-card h2 a:hover { color: #0066cc; }
+    .date { color: #999; font-size: 0.85em; margin-bottom: 10px; }
+    .read-more { color: #0066cc; font-weight: bold; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="programs.html">Programs</a>
+    <a href="team.html">Our Team</a>
+    <a href="blog.html">Blog</a>
+    <a href="admin.html">Admin</a>
+  </nav>
+
+  <div class="container">
+    <h1>Blog & Articles</h1>
+    <p class="subtitle">Insights, stories, and updates from Visionary Youth Alliance.</p>
+    <div id="blog-list">Loading...</div>
+  </div>
+
+  <script>
+    fetch('data.json')
+      .then(res => res.json())
+      .then(data => {
+        const posts = data.blog || [];
+        const list = document.getElementById('blog-list');
+
+        if (posts.length === 0) {
+          list.innerHTML = '<p>No posts yet. Check back soon!</p>';
+          return;
+        }
+
+        posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        list.innerHTML = posts.map(post => `
+          <article class="blog-card">
+            <h2><a href="posts/${post.slug}.html">${post.title}</a></h2>
+            <p class="date">${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p>${post.excerpt || ''}</p>
+            <br>
+            <a href="posts/${post.slug}.html" class="read-more">Read More →</a>
+          </article>
+        `).join('');
+      })
+      .catch(err => {
+        document.getElementById('blog-list').innerHTML = '<p>Could not load posts.</p>';
+        console.error(err);
+      });
+  </script>
+
+</body>
+</html>
