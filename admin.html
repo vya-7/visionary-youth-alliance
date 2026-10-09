@@ -278,13 +278,15 @@ function renderPillars(pillars){
       <input value="${esc(p.status)}" placeholder="Status (e.g. Open for Registration)" onchange="pillarsData[${i}].status=this.value">
       <input value="${esc(p.title)}" placeholder="Title" onchange="pillarsData[${i}].title=this.value">
       <input value="${esc(p.meta)}" placeholder="Meta line (e.g. 📅 Ongoing | 🌐 Online)" onchange="pillarsData[${i}].meta=this.value">
+      <input value="${esc(p.price)}" placeholder="Price (e.g. Free, or 100 Taka)" onchange="pillarsData[${i}].price=this.value">
+      <input value="${esc(p.eligibility)}" placeholder="Who can join (e.g. Class 6-12 students)" onchange="pillarsData[${i}].eligibility=this.value">
       <textarea style="grid-column:1/-1" placeholder="Description" onchange="pillarsData[${i}].text=this.value">${esc(p.text)}</textarea>
       <textarea style="grid-column:1/-1" placeholder="Highlights — one per line" onchange="pillarsData[${i}].highlights=this.value.split('\\n').map(s=>s.trim()).filter(Boolean)">${esc((p.highlights||[]).join('\n'))}</textarea>
       <input style="grid-column:1/-1" value="${esc(p.link)}" placeholder="Google Form link (Register Now button)" onchange="pillarsData[${i}].link=this.value">
       <button type="button" class="rm" onclick="removePillar(${i})">✕ remove</button>
     </div>`).join('');
 }
-function addPillar(){ pillarsData.push({icon:'🚀',status:'',title:'',meta:'',text:'',highlights:[],link:''}); renderPillars(pillarsData); }
+function addPillar(){ pillarsData.push({icon:'🚀',status:'',title:'',meta:'',price:'',eligibility:'',text:'',highlights:[],link:''}); renderPillars(pillarsData); }
 function removePillar(i){ pillarsData.splice(i,1); renderPillars(pillarsData); }
 
 function collectGroup(name){

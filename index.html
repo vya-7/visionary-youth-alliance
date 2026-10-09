@@ -226,6 +226,9 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 function renderSite(d){
+  d.hero = d.hero || {}; d.stats = d.stats || []; d.about = d.about || {cards:[]}; d.about.cards = d.about.cards || [];
+  d.programs = d.programs || {pillars:[]}; d.programs.pillars = d.programs.pillars || [];
+  d.team = d.team || []; d.join = d.join || {}; d.contact = d.contact || {}; d.social = d.social || {};
   document.getElementById('h-tag').textContent = d.hero.tag;
   document.getElementById('h-title').textContent = d.hero.title;
   document.getElementById('h-sub').textContent = d.hero.subtitle;
