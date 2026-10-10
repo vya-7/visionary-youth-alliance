@@ -85,20 +85,43 @@
   .admin-link:hover{opacity:1;}
 </style>
 <style>
+    /* ---- Blog redesign ---- */
+  .bl-hero{background:radial-gradient(ellipse at 50% -20%,#1c2a6b 0%,var(--navy) 60%,var(--navy) 100%);color:#fff;text-align:center;padding:52px 24px 40px;}
+  .bl-hero .eyebrow{color:#9ec1ff;display:flex;justify-content:center;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;}
+  .bl-hero h1{font-size:clamp(1.9rem,5.5vw,3rem);font-weight:800;line-height:1.15;margin-bottom:14px;background:linear-gradient(100deg,#6ea8ff 0%,#b98cff 55%,#7b2ff7 100%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .bl-intro{max-width:640px;margin:0 auto 22px;color:#c7cdec;font-size:1rem;line-height:1.75;}
+  .bl-chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:22px;}
+  .bl-chips span{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);border-radius:999px;padding:6px 14px;font-size:.8rem;color:#dbe3ff;}
+  .bl-search{display:flex;align-items:center;gap:8px;max-width:420px;margin:0 auto;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 16px;}
+  .bl-search input{flex:1;min-width:0;background:none;border:none;outline:none;color:#fff;font-size:16px;padding:9px 0;font-family:inherit;}
+  .bl-search input::placeholder{color:#9aa3d1;}
+  .bl-sec{padding:34px 0 8px;}
+  .blog-grid{display:grid;gap:22px;}
+  @media(min-width:640px){.blog-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(min-width:980px){.blog-grid{grid-template-columns:repeat(3,1fr);}}
+  .blog-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(15,21,51,.05);transition:transform .22s,box-shadow .22s,border-color .22s;}
+  .blog-card:hover{transform:translateY(-5px);box-shadow:0 14px 34px rgba(43,108,246,.16);border-color:#c9d6ff;}
+  .blog-card .cover{width:100%;height:96px;border-radius:0;font-size:2.3rem;background:linear-gradient(120deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;margin:0;}
+  .blog-card .bc-body{padding:20px 22px 22px;display:flex;flex-direction:column;flex:1;}
+  .blog-card .meta{color:var(--blue);font-size:.76rem;font-weight:600;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:6px 12px;}
+  .blog-card h3{font-size:1.08rem;margin-bottom:8px;line-height:1.35;overflow-wrap:anywhere;}
+  .blog-card p{color:var(--muted);font-size:.9rem;flex:1;margin-bottom:16px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .blog-card .read-link{align-self:flex-start;color:var(--blue);font-weight:700;font-size:.88rem;}
+  .blog-card .read-link:hover{text-decoration:underline;}
+  .bl-feat{display:block;margin-bottom:26px;border-radius:22px;overflow:hidden;color:#fff;background:linear-gradient(120deg,#16275f 0%,#3b1d8f 100%);padding:30px 26px;position:relative;box-shadow:0 14px 40px rgba(43,40,150,.28);transition:transform .22s;}
+  .bl-feat:hover{transform:translateY(-3px);}
+  .bl-feat .bf-badge{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:4px 12px;font-size:.74rem;font-weight:700;margin-bottom:14px;}
+  .bl-feat .bf-ic{position:absolute;right:18px;top:12px;font-size:3.6rem;opacity:.22;}
+  .bl-feat h3{font-size:clamp(1.3rem,3.6vw,1.9rem);line-height:1.25;margin-bottom:10px;color:#fff;max-width:640px;overflow-wrap:anywhere;}
+  .bl-feat p{color:#d6dcff;max-width:640px;line-height:1.7;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .bl-feat .bf-meta{font-size:.8rem;color:#b9c2ee;margin-bottom:16px;}
+  .bl-feat .bf-go{display:inline-block;background:#fff;color:var(--ink);font-weight:700;font-size:.88rem;padding:10px 20px;border-radius:999px;}
+  @media(max-width:520px){.bl-hero{padding:40px 18px 32px;}.bl-feat{padding:24px 20px;}}
   .page-head{padding:56px 24px 10px;text-align:center;}
   .page-head .eyebrow{justify-content:center;display:flex;}
   .page-head h2{margin:0 auto 10px;}
   .page-head .lead{margin:0 auto 10px;}
 
-  .blog-grid{display:grid;gap:20px;}
-  @media(min-width:720px){.blog-grid{grid-template-columns:repeat(2,1fr);}}
-  .blog-card{background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;}
-  .blog-card .cover{width:52px;height:52px;border-radius:13px;background:linear-gradient(100deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:16px;}
-  .blog-card .meta{color:var(--blue);font-size:0.78rem;font-weight:600;margin-bottom:8px;}
-  .blog-card h3{font-size:1.15rem;margin-bottom:10px;line-height:1.35;}
-  .blog-card p{color:var(--muted);font-size:0.9rem;flex:1;margin-bottom:16px;line-height:1.6;}
-  .blog-card .read-link{align-self:flex-start;color:var(--blue);font-weight:700;font-size:0.88rem;}
-  .blog-card .read-link:hover{text-decoration:underline;}
   .tag-chip{display:inline-block;background:rgba(255,255,255,0.07);border:1px solid var(--line);color:var(--muted);font-size:0.72rem;padding:4px 10px;border-radius:999px;margin:0 6px 6px 0;}
 
   .post-wrap{max-width:720px;margin:0 auto;padding:48px 24px 64px;}
@@ -136,15 +159,19 @@
   menuBtn.addEventListener('click', ()=> mobileMenu.classList.toggle('open'));
   mobileMenu.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=> mobileMenu.classList.remove('open')));
 </script>
-<div class="page-head">
+<header class="bl-hero">
   <div class="eyebrow">Blog &amp; Articles</div>
-  <h2>Stories, Updates &amp; Ideas</h2>
-  <p class="lead">Thoughts, updates, and write-ups from the Visionary Youth Alliance team.</p>
-</div>
+  <h1>Stories, Updates &amp; Ideas</h1>
+  <p class="bl-intro">Welcome to the Visionary Youth Alliance blog — the place where our team and members share what we are learning, building and planning. Read about our programs, youth leadership, campus stories and the ideas shaping the next generation of changemakers in Bangladesh.</p>
+  <div class="bl-chips" id="bl-chips"></div>
+  <div class="bl-search"><span>🔎</span><input id="bl-q" type="search" placeholder="Search articles…" autocomplete="off" oninput="blFilter()"></div>
+</header>
 
-<section>
+<section class="bl-sec">
   <div class="wrap">
+    <div id="bl-featured"></div>
     <div class="blog-grid" id="blog-grid"></div>
+    <p class="lead" id="bl-empty" style="display:none;text-align:center;margin:30px auto;">No articles match your search.</p>
   </div>
 </section>
 <footer>
@@ -169,7 +196,7 @@
       <ul id="f-contact"></ul>
     </div>
   </div>
-  <div class="fbottom">© 2026 Visionary Youth Alliance. All Rights Reserved.<br>Developed by Fahad Abdur Rahman — Founder &amp; President of VYA · Founder &amp; Chairman of <a href="https://talentversebd.github.io/tvbd/" target="_blank" rel="noopener" style="color:#9ec1ff;text-decoration:underline;">TalentVerse Bangladesh</a></div>
+  <div class="fbottom">© 2026 Visionary Youth Alliance. All Rights Reserved.<br>Developed by Fahad Abdur Rahman — Founder &amp; Chairman of <a href="https://talentversebd.github.io/tvbd/" target="_blank" rel="noopener" style="color:#9ec1ff;text-decoration:underline;">TalentVerse Bangladesh</a></div>
 </footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -197,20 +224,44 @@ function tryHideSplash(){
 }
 setTimeout(()=>{ minTimeElapsed = true; tryHideSplash(); }, 4500);
 
+let blPosts=[];
+function blRead(p){ const w=String(p.content||p.excerpt||'').trim().split(/\s+/).filter(Boolean).length; return Math.max(1,Math.round(w/200))+' min read'; }
+function blCard(p){
+  return `<div class="blog-card">
+    <div class="cover">${p.icon||'📝'}</div>
+    <div class="bc-body">
+      <div class="meta"><span>${p.author?p.author+' · ':''}${p.date||''}</span><span>⏱ ${blRead(p)}</span></div>
+      <h3>${p.title}</h3>
+      <p>${(p.excerpt||(p.content||'').slice(0,120)+'…')}</p>
+      <a class="read-link" href="blog-post.html?id=${encodeURIComponent(p.id)}">Read Article →</a>
+    </div></div>`;
+}
+function blShow(list, isSearch){
+  const feat=document.getElementById('bl-featured'), grid=document.getElementById('blog-grid'), empty=document.getElementById('bl-empty');
+  empty.style.display = list.length ? 'none' : 'block';
+  let rest=list;
+  if(!isSearch && list.length>1){
+    const f=list[0]; rest=list.slice(1);
+    feat.innerHTML=`<a class="bl-feat" href="blog-post.html?id=${encodeURIComponent(f.id)}"><span class="bf-ic">${f.icon||'📝'}</span><span class="bf-badge">⭐ Latest article</span><h3>${f.title}</h3><p>${(f.excerpt||(f.content||'').slice(0,200)+'…')}</p><div class="bf-meta">${f.author?f.author+' · ':''}${f.date||''} · ⏱ ${blRead(f)}</div><span class="bf-go">Read Article →</span></a>`;
+  } else feat.innerHTML='';
+  grid.innerHTML = rest.map(blCard).join('');
+}
+function blFilter(){
+  const q=document.getElementById('bl-q').value.trim().toLowerCase();
+  if(!q) return blShow(blPosts,false);
+  blShow(blPosts.filter(p=>((p.title||'')+' '+(p.excerpt||'')+' '+(p.content||'')+' '+(p.author||'')).toLowerCase().includes(q)),true);
+}
 function render(d){
-  const posts = (d.blog || []).slice().sort((a,b)=> new Date(b.date||0) - new Date(a.date||0));
-  const grid = document.getElementById('blog-grid');
-  if(!posts.length){
-    grid.innerHTML = '<p class="lead" style="margin:0 auto">No articles yet. Check back soon!</p>';
+  blPosts = (d.blog || []).slice().sort((a,b)=> new Date(b.date||0) - new Date(a.date||0));
+  const chips=document.getElementById('bl-chips');
+  if(!blPosts.length){
+    document.querySelector('.bl-search').style.display='none';
+    document.getElementById('blog-grid').innerHTML = '<p class="lead" style="margin:0 auto;text-align:center;grid-column:1/-1">No articles yet. Check back soon!</p>';
     return;
   }
-  grid.innerHTML = posts.map(p=>`<div class="blog-card">
-    <div class="cover">${p.icon||'📝'}</div>
-    <div class="meta">${p.author?p.author+' · ':''}${p.date||''}</div>
-    <h3>${p.title}</h3>
-    <p>${(p.excerpt||(p.content||'').slice(0,120)+'…')}</p>
-    <a class="read-link" href="blog-post.html?id=${encodeURIComponent(p.id)}">Read Article →</a>
-  </div>`).join('');
+  const authors=new Set(blPosts.map(p=>p.author).filter(Boolean));
+  chips.innerHTML = `<span>📝 ${blPosts.length} article${blPosts.length>1?'s':''}</span>` + (authors.size?`<span>✍️ ${authors.size} author${authors.size>1?'s':''}</span>`:'') + (blPosts[0].date?`<span>🗓 Latest: ${blPosts[0].date}</span>`:'');
+  blShow(blPosts,false);
 }
 
 db.collection('site').doc('content').get().then(s=>{
