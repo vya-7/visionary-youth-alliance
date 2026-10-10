@@ -201,6 +201,7 @@
   <div class="wrap">
     <div class="eyebrow">From the Blog</div>
     <h2>Latest Articles</h2>
+    <p class="lead" style="max-width:620px;">Stories, updates and ideas from the Visionary Youth Alliance team — what we are learning, building and planning for young people across Bangladesh.</p>
     <div class="about-grid" id="blog-preview-grid"></div>
     <a href="blog.html" class="btn btn-ghost" style="margin-top:28px;display:inline-flex;border-color:rgba(255,255,255,0.25);color:#fff;">View All Articles →</a>
   </div>
@@ -304,7 +305,7 @@ function renderSite(d){
   if(d.blog && d.blog.length){
     const latest = d.blog.slice().sort((a,b)=> new Date(b.date||0) - new Date(a.date||0)).slice(0,3);
     document.getElementById('blog-preview').style.display = 'block';
-    document.getElementById('blog-preview-grid').innerHTML = latest.map(p=>`<div class="card"><div class="ic">${p.icon||'✍️'}</div><h3>${p.title}</h3><p>${(p.excerpt||(p.content||'').slice(0,90)+'…')}</p><a href="blog-post.html?id=${encodeURIComponent(p.id)}" style="color:#8fb4ff;font-weight:700;font-size:0.85rem;display:inline-block;margin-top:10px;">Read More →</a></div>`).join('');
+    document.getElementById('blog-preview-grid').innerHTML = latest.map(p=>`<div class="card">${/^https?:\/\//i.test(String(p.image||'').trim())?`<img loading="lazy" decoding="async" src="${String(p.image).trim().replace(/"/g,'%22')}" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:10px;margin-bottom:12px;">`:`<div class="ic">${p.icon||'✍️'}</div>`}<h3>${p.title}</h3><p>${(p.excerpt||(p.content||'').slice(0,90)+'…')}</p><a href="blog-post.html?id=${encodeURIComponent(p.id)}" style="color:#8fb4ff;font-weight:700;font-size:0.85rem;display:inline-block;margin-top:10px;">Read More →</a></div>`).join('');
   }
 
   document.getElementById('j-title').textContent = d.join.title;

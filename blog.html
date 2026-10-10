@@ -102,6 +102,8 @@
   .blog-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(15,21,51,.05);transition:transform .22s,box-shadow .22s,border-color .22s;}
   .blog-card:hover{transform:translateY(-5px);box-shadow:0 14px 34px rgba(43,108,246,.16);border-color:#c9d6ff;}
   .blog-card .cover{width:100%;height:96px;border-radius:0;font-size:2.3rem;background:linear-gradient(120deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;margin:0;}
+  .blog-card .cover.cover-img{height:170px;background:#e8ecfa;}
+  .blog-card .cover.cover-img img{width:100%;height:100%;object-fit:cover;}
   .blog-card .bc-body{padding:20px 22px 22px;display:flex;flex-direction:column;flex:1;}
   .blog-card .meta{color:var(--blue);font-size:.76rem;font-weight:600;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:6px 12px;}
   .blog-card h3{font-size:1.08rem;margin-bottom:8px;line-height:1.35;overflow-wrap:anywhere;}
@@ -225,10 +227,12 @@ function tryHideSplash(){
 setTimeout(()=>{ minTimeElapsed = true; tryHideSplash(); }, 4500);
 
 let blPosts=[];
+function blImg(u){ u=String(u||'').trim(); return /^https?:\/\//i.test(u) ? u.replace(/"/g,'%22') : ''; }
+function blCover(p){ const u=blImg(p.image); return u ? `<div class="cover cover-img"><img loading="lazy" decoding="async" src="${u}" alt=""></div>` : `<div class="cover">${p.icon||'📝'}</div>`; }
 function blRead(p){ const w=String(p.content||p.excerpt||'').trim().split(/\s+/).filter(Boolean).length; return Math.max(1,Math.round(w/200))+' min read'; }
 function blCard(p){
   return `<div class="blog-card">
-    <div class="cover">${p.icon||'📝'}</div>
+    ${blCover(p)}
     <div class="bc-body">
       <div class="meta"><span>${p.author?p.author+' · ':''}${p.date||''}</span><span>⏱ ${blRead(p)}</span></div>
       <h3>${p.title}</h3>
@@ -242,7 +246,7 @@ function blShow(list, isSearch){
   let rest=list;
   if(!isSearch && list.length>1){
     const f=list[0]; rest=list.slice(1);
-    feat.innerHTML=`<a class="bl-feat" href="blog-post.html?id=${encodeURIComponent(f.id)}"><span class="bf-ic">${f.icon||'📝'}</span><span class="bf-badge">⭐ Latest article</span><h3>${f.title}</h3><p>${(f.excerpt||(f.content||'').slice(0,200)+'…')}</p><div class="bf-meta">${f.author?f.author+' · ':''}${f.date||''} · ⏱ ${blRead(f)}</div><span class="bf-go">Read Article →</span></a>`;
+    feat.innerHTML=`<a class="bl-feat${blImg(f.image)?' has-img':''}" ${blImg(f.image)?`style="background-image:linear-gradient(100deg,rgba(11,19,48,.92) 25%,rgba(11,19,48,.45)),url('${blImg(f.image)}');background-size:cover;background-position:center;"`:''} href="blog-post.html?id=${encodeURIComponent(f.id)}"><span class="bf-ic">${f.icon||'📝'}</span><span class="bf-badge">⭐ Latest article</span><h3>${f.title}</h3><p>${(f.excerpt||(f.content||'').slice(0,200)+'…')}</p><div class="bf-meta">${f.author?f.author+' · ':''}${f.date||''} · ⏱ ${blRead(f)}</div><span class="bf-go">Read Article →</span></a>`;
   } else feat.innerHTML='';
   grid.innerHTML = rest.map(blCard).join('');
 }

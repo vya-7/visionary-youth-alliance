@@ -320,6 +320,14 @@ function renderBlog(posts){
       <input value="${esc(p.icon)}" placeholder="Emoji icon (e.g. ✍️)" onchange="blogData[${i}].icon=this.value">
       <input value="${esc(p.date)}" placeholder="Date (e.g. 2026-03-15)" onchange="blogData[${i}].date=this.value">
       <input style="grid-column:1/-1" value="${esc(p.title)}" placeholder="Title" onchange="blogData[${i}].title=this.value">
+      <div style="grid-column:1/-1;border:1px dashed #c9d2ee;border-radius:10px;padding:10px;">
+        <div id="bimg-prev-${i}" style="margin-bottom:8px;">${blogImgPrev(p.image)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <label class="btn-add" style="margin:0;cursor:pointer;">📷 Upload picture<input type="file" accept="image/*" style="display:none" onchange="uploadBlogImage(${i},this)"></label>
+          <button type="button" class="rm" style="margin:0;" onclick="clearBlogImage(${i})">Remove picture</button>
+        </div>
+        <input style="margin-top:8px;" id="bimg-url-${i}" value="${esc(p.image||'')}" placeholder="…or paste an image link (https://…)" onchange="setBlogImage(${i},this.value)">
+      </div>
       <input value="${esc(p.author)}" placeholder="Author" onchange="blogData[${i}].author=this.value">
       <input value="${esc(p.tags ? p.tags.join(', ') : '')}" placeholder="Tags, comma separated" onchange="blogData[${i}].tags=this.value.split(',').map(s=>s.trim()).filter(Boolean)">
       <textarea style="grid-column:1/-1" placeholder="Short excerpt (shown on Blog list page)" onchange="blogData[${i}].excerpt=this.value">${esc(p.excerpt)}</textarea>
@@ -327,9 +335,37 @@ function renderBlog(posts){
       <button type="button" class="rm" onclick="removeBlogPost(${i})">✕ remove</button>
     </div>`).join('');
 }
+const IMGBB_KEY = "b374ae6a3edcf12a90a5b7be9ec39f50";
+function blogImgPrev(u){
+  return /^https?:\/\//i.test(String(u||'')) ? `<img src="${esc(u)}" alt="" style="max-width:100%;max-height:170px;border-radius:10px;display:block;">` : '<span style="font-size:.8rem;color:#7c85ad;">No picture yet — the emoji icon is used.</span>';
+}
+function setBlogImage(i, url){
+  url = String(url||'').trim();
+  if(url && !/^https?:\/\//i.test(url)){ alert('Image link must start with https://'); return renderBlog(blogData); }
+  blogData[i].image = url;
+  document.getElementById('bimg-prev-'+i).innerHTML = blogImgPrev(url);
+}
+function clearBlogImage(i){ blogData[i].image = ''; renderBlog(blogData); }
+async function uploadBlogImage(i, input){
+  const f = input.files && input.files[0]; if(!f) return;
+  if(f.size > 8*1024*1024){ alert('Picture is too big (max 8 MB).'); return; }
+  const prev = document.getElementById('bimg-prev-'+i);
+  prev.innerHTML = '<span style="font-size:.85rem;">⏳ Uploading…</span>';
+  try{
+    const fd = new FormData(); fd.append('image', f);
+    const res = await fetch('https://api.imgbb.com/1/upload?key='+IMGBB_KEY, { method:'POST', body: fd });
+    const d = await res.json();
+    if(!d.success) throw new Error('upload failed');
+    blogData[i].image = d.data.url;
+    document.getElementById('bimg-url-'+i).value = d.data.url;
+    prev.innerHTML = blogImgPrev(d.data.url);
+  }catch(e){
+    prev.innerHTML = '<span style="color:#d33;font-size:.85rem;">❌ Upload failed — try again or paste an image link.</span>';
+  }
+}
 function addBlogPost(){
   const id = 'post-' + Date.now();
-  blogData.push({id, icon:'✍️', title:'', author:'', date:new Date().toISOString().slice(0,10), excerpt:'', content:'', tags:[]});
+  blogData.push({id, icon:'✍️', title:'', author:'', date:new Date().toISOString().slice(0,10), excerpt:'', content:'', image:'', tags:[]});
   renderBlog(blogData);
 }
 function removeBlogPost(i){ blogData.splice(i,1); renderBlog(blogData); }
