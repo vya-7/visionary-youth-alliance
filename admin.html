@@ -57,6 +57,7 @@
   <div class="navitem" data-view="home">🏠 Home Page</div>
   <div class="navitem" data-view="programs">🧩 Programs</div>
   <div class="navitem" data-view="team">👥 Team Members</div>
+  <div class="navitem" data-view="network">🌐 Our Network</div>
   <div class="navitem" data-view="blog">✍️ Blog &amp; Articles</div>
   <div class="navgroup">Notice</div>
   <div class="navitem" data-view="join">🤝 Join Section</div>
@@ -118,6 +119,15 @@
         <div id="team-list"></div>
         <button type="button" class="btn-add" onclick="addTeam()">+ Add team member</button>
         <p class="hint">Leave empty and save to hide the Team section from the site.</p>
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-network">
+      <fieldset>
+        <legend>Our Network</legend>
+        <div id="network-list"></div>
+        <button type="button" class="btn-add" onclick="addNetwork()">+ Add network page</button>
+        <p class="hint">Partner / affiliated pages shown on the home page (logo, name, short note, link). Leave empty and save to hide the section. Logo = a direct https image link (optional).</p>
       </fieldset>
     </div>
 
@@ -250,6 +260,7 @@ function fillForm(d){
   document.getElementById('prog-lead').value = d.programs.lead;
   renderPillars(d.programs.pillars || []);
   renderTeam(d.team||[]);
+  renderNetwork(d.network||[]);
   renderBlog(d.blog||[]);
   document.getElementById('join-title').value = d.join.title;
   document.getElementById('join-text').value = d.join.text;
@@ -279,6 +290,25 @@ function renderTeam(team){
       <button type="button" class="rm" onclick="removeTeam(${i})">✕ remove</button>
     </div>`).join('');
 }
+let networkData = [];
+function renderNetwork(list){
+  networkData = list;
+  document.getElementById('network-list').innerHTML = networkData.map((n,i)=>`
+    <div class="card-item">
+      <div class="row row2">
+        <input value="${esc(n.name)}" placeholder="Page / organization name" onchange="networkData[${i}].name=this.value">
+        <input value="${esc(n.url)}" placeholder="Link (https://...)" onchange="networkData[${i}].url=this.value">
+      </div>
+      <div class="row row2">
+        <input value="${esc(n.logo)}" placeholder="Logo image link (optional)" onchange="networkData[${i}].logo=this.value">
+        <input value="${esc(n.description)}" placeholder="Short description (optional)" onchange="networkData[${i}].description=this.value">
+      </div>
+      <button type="button" class="rm" onclick="removeNetwork(${i})">✕ remove</button>
+    </div>`).join('');
+}
+function addNetwork(){ networkData.push({name:'',url:'',logo:'',description:''}); renderNetwork(networkData); }
+function removeNetwork(i){ networkData.splice(i,1); renderNetwork(networkData); }
+
 function addTeam(){ teamData.push({name:'',role:''}); renderTeam(teamData); }
 function removeTeam(i){ teamData.splice(i,1); renderTeam(teamData); }
 
@@ -338,6 +368,7 @@ function buildData(){
     about: { lead: document.getElementById('about-lead').value, cards: collectGroup('cards') },
     programs: { lead: document.getElementById('prog-lead').value, pillars: pillarsData.filter(p=>p.title || p.text || p.link) },
     team: teamData.filter(m=>m.name || m.role),
+    network: networkData.filter(n=>n.name && n.url),
     blog: blogData.filter(p=>p.title || p.content).map(p=>({...p, id: p.id || ('post-'+Date.now()+'-'+Math.random().toString(36).slice(2,7))})),
     join: { title: document.getElementById('join-title').value, text: document.getElementById('join-text').value },
     contact: { email: document.getElementById('contact-email').value, phone: document.getElementById('contact-phone').value, address: document.getElementById('contact-address').value },

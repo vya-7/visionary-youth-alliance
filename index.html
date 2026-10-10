@@ -51,6 +51,14 @@
   .about-grid{display:grid;gap:20px;}
   @media(min-width:720px){.about-grid{grid-template-columns:repeat(3,1fr);}}
   .card{border:1px solid var(--line);border-radius:14px;padding:22px;background:linear-gradient(180deg,rgba(123,47,247,0.03),transparent);}
+  .net-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));}
+  .net-card{display:block;text-align:center;border:1px solid rgba(255,255,255,0.14);border-radius:14px;padding:22px 16px;background:rgba(255,255,255,0.05);color:#fff;transition:transform .25s,border-color .25s,background .25s;}
+  .net-card:hover{transform:translateY(-4px);border-color:rgba(123,47,247,0.7);background:rgba(255,255,255,0.09);}
+  .net-logo{width:64px;height:64px;border-radius:50%;object-fit:cover;margin:0 auto 12px;border:2px solid rgba(255,255,255,0.25);}
+  .net-ph{width:64px;height:64px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:800;font-size:1.2rem;color:#fff;background:linear-gradient(135deg,var(--blue),var(--purple));}
+  .net-card h3{font-size:.98rem;margin-bottom:4px;color:#fff;}
+  .net-card p{font-size:.82rem;color:#c7cdec;line-height:1.5;}
+  .net-card .net-go{display:inline-block;margin-top:10px;font-size:.78rem;font-weight:600;color:#9ec1ff;}
   .card .ic{font-size:1.5rem;margin-bottom:10px;}
   .card h3{font-size:1.05rem;margin-bottom:6px;}
   .card p{color:var(--muted);font-size:0.92rem;}
@@ -181,6 +189,14 @@
   </div>
 </section>
 
+<section class="band" id="network" style="display:none">
+  <div class="wrap">
+    <div class="eyebrow">Our Network</div>
+    <h2>Pages &amp; partners we work with</h2>
+    <div class="net-grid" id="net-grid"></div>
+  </div>
+</section>
+
 <section class="band" id="blog-preview" style="display:none">
   <div class="wrap">
     <div class="eyebrow">From the Blog</div>
@@ -220,7 +236,7 @@
       <ul id="f-contact"></ul>
     </div>
   </div>
-  <div class="fbottom">© 2026 Visionary Youth Alliance. All Rights Reserved.<br>Developed by Fahad Abdur Rahman — Founder &amp; Chairman of <a href="https://talentversebd.github.io/tvbd/" target="_blank" rel="noopener" style="color:#9ec1ff;text-decoration:underline;">TalentVerse Bangladesh</a></div>
+  <div class="fbottom">© 2026 Visionary Youth Alliance. All Rights Reserved.<br>Developed by Fahad Abdur Rahman — Founder &amp; President of VYA · Founder &amp; Chairman of <a href="https://talentversebd.github.io/tvbd/" target="_blank" rel="noopener" style="color:#9ec1ff;text-decoration:underline;">TalentVerse Bangladesh</a></div>
 </footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -276,6 +292,14 @@ function renderSite(d){
   if(d.team && d.team.length){
     document.getElementById('team').style.display = 'block';
     document.getElementById('t-team').innerHTML = d.team.map(m=>`<div class="card"><div class="ic">👤</div><h3>${m.name}</h3><p>${m.role}</p></div>`).join('');
+  }
+  if(d.network && d.network.length){
+    const safe = u => /^https?:\/\//i.test(String(u||'').trim()) ? String(u).trim().replace(/"/g,'%22') : '#';
+    const e = v => String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    document.getElementById('network').style.display = 'block';
+    document.getElementById('net-grid').innerHTML = d.network.filter(n=>n.name).map(n=>`<a class="net-card" href="${safe(n.url)}" target="_blank" rel="noopener">
+      ${/^https?:\/\//i.test(String(n.logo||'')) ? `<img class="net-logo" loading="lazy" decoding="async" src="${e(n.logo)}" alt="${e(n.name)}">` : `<div class="net-ph">${e((n.name||'?').charAt(0).toUpperCase())}</div>`}
+      <h3>${e(n.name)}</h3>${n.description?`<p>${e(n.description)}</p>`:''}<span class="net-go">Visit Page →</span></a>`).join('');
   }
   if(d.blog && d.blog.length){
     const latest = d.blog.slice().sort((a,b)=> new Date(b.date||0) - new Date(a.date||0)).slice(0,3);
