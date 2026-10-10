@@ -119,10 +119,14 @@
   ],
   "blog": [
     {
-      "title": "Welcome to Our Blog",
-      "slug": "welcome",
-      "date": "2026-10-09",
-      "excerpt": "This is our very first blog post. Stay tuned for more updates from Visionary Youth Alliance!"
+      "id": "welcome-to-vya",
+      "icon": "✍️",
+      "title": "Welcome to Visionary Youth Alliance",
+      "author": "VYA Team",
+      "date": "2026-01-01",
+      "excerpt": "A short introduction to why we started VYA and what we're building together.",
+      "content": "We started Visionary Youth Alliance because we believe young people in Bangladesh deserve real opportunities to lead, not just participate.\n\nThis blog will be where we share updates, lessons learned, and stories from our programs. Stay tuned for more.",
+      "tags": ["announcement"]
     }
   ],
   "join": {

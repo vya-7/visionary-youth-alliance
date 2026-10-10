@@ -57,6 +57,7 @@
   <div class="navitem" data-view="home">🏠 Home Page</div>
   <div class="navitem" data-view="programs">🧩 Programs</div>
   <div class="navitem" data-view="team">👥 Team Members</div>
+  <div class="navitem" data-view="blog">✍️ Blog &amp; Articles</div>
   <div class="navgroup">Notice</div>
   <div class="navitem" data-view="join">🤝 Join Section</div>
   <div class="navgroup">Settings</div>
@@ -79,6 +80,7 @@
         <div class="stat-box"><span>Team members</span><b id="d-team">–</b></div>
         <div class="stat-box"><span>About cards</span><b id="d-cards">–</b></div>
         <div class="stat-box"><span>Program pillars</span><b id="d-pillars">–</b></div>
+        <div class="stat-box"><span>Blog articles</span><b id="d-blog">–</b></div>
       </div>
       <p class="hint" style="margin-top:16px">Use the sidebar to edit each part of the site, then click "Save Changes" at any time.</p>
     </div>
@@ -116,6 +118,15 @@
         <div id="team-list"></div>
         <button type="button" class="btn-add" onclick="addTeam()">+ Add team member</button>
         <p class="hint">Leave empty and save to hide the Team section from the site.</p>
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-blog">
+      <fieldset>
+        <legend>Blog &amp; Articles</legend>
+        <div id="blog-list"></div>
+        <button type="button" class="btn-add" onclick="addBlogPost()">+ Add article</button>
+        <p class="hint">Posts show newest first on the Blog page, sorted by Date.</p>
       </fieldset>
     </div>
 
@@ -239,6 +250,7 @@ function fillForm(d){
   document.getElementById('prog-lead').value = d.programs.lead;
   renderPillars(d.programs.pillars || []);
   renderTeam(d.team||[]);
+  renderBlog(d.blog||[]);
   document.getElementById('join-title').value = d.join.title;
   document.getElementById('join-text').value = d.join.text;
   document.getElementById('contact-email').value = d.contact.email;
@@ -254,6 +266,7 @@ function fillForm(d){
   document.getElementById('d-team').textContent = (d.team||[]).length;
   document.getElementById('d-cards').textContent = d.about.cards.length;
   document.getElementById('d-pillars').textContent = d.programs.pillars.length;
+  document.getElementById('d-blog').textContent = (d.blog||[]).length;
 }
 
 let teamData = [];
@@ -268,6 +281,28 @@ function renderTeam(team){
 }
 function addTeam(){ teamData.push({name:'',role:''}); renderTeam(teamData); }
 function removeTeam(i){ teamData.splice(i,1); renderTeam(teamData); }
+
+let blogData = [];
+function renderBlog(posts){
+  blogData = posts;
+  document.getElementById('blog-list').innerHTML = blogData.map((p,i)=>`
+    <div class="card-item row row2">
+      <input value="${esc(p.icon)}" placeholder="Emoji icon (e.g. ✍️)" onchange="blogData[${i}].icon=this.value">
+      <input value="${esc(p.date)}" placeholder="Date (e.g. 2026-03-15)" onchange="blogData[${i}].date=this.value">
+      <input style="grid-column:1/-1" value="${esc(p.title)}" placeholder="Title" onchange="blogData[${i}].title=this.value">
+      <input value="${esc(p.author)}" placeholder="Author" onchange="blogData[${i}].author=this.value">
+      <input value="${esc(p.tags ? p.tags.join(', ') : '')}" placeholder="Tags, comma separated" onchange="blogData[${i}].tags=this.value.split(',').map(s=>s.trim()).filter(Boolean)">
+      <textarea style="grid-column:1/-1" placeholder="Short excerpt (shown on Blog list page)" onchange="blogData[${i}].excerpt=this.value">${esc(p.excerpt)}</textarea>
+      <textarea style="grid-column:1/-1;min-height:140px" placeholder="Full article text — leave a blank line between paragraphs" onchange="blogData[${i}].content=this.value">${esc(p.content)}</textarea>
+      <button type="button" class="rm" onclick="removeBlogPost(${i})">✕ remove</button>
+    </div>`).join('');
+}
+function addBlogPost(){
+  const id = 'post-' + Date.now();
+  blogData.push({id, icon:'✍️', title:'', author:'', date:new Date().toISOString().slice(0,10), excerpt:'', content:'', tags:[]});
+  renderBlog(blogData);
+}
+function removeBlogPost(i){ blogData.splice(i,1); renderBlog(blogData); }
 
 let pillarsData = [];
 function renderPillars(pillars){
@@ -303,6 +338,7 @@ function buildData(){
     about: { lead: document.getElementById('about-lead').value, cards: collectGroup('cards') },
     programs: { lead: document.getElementById('prog-lead').value, pillars: pillarsData.filter(p=>p.title || p.text || p.link) },
     team: teamData.filter(m=>m.name || m.role),
+    blog: blogData.filter(p=>p.title || p.content).map(p=>({...p, id: p.id || ('post-'+Date.now()+'-'+Math.random().toString(36).slice(2,7))})),
     join: { title: document.getElementById('join-title').value, text: document.getElementById('join-text').value },
     contact: { email: document.getElementById('contact-email').value, phone: document.getElementById('contact-phone').value, address: document.getElementById('contact-address').value },
     social: { facebook: document.getElementById('social-facebook').value, instagram: document.getElementById('social-instagram').value, whatsapp: document.getElementById('social-whatsapp').value, youtube: document.getElementById('social-youtube').value }

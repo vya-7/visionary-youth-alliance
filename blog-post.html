@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Our Team — Visionary Youth Alliance</title>
+<title>Article — Visionary Youth Alliance</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -89,18 +89,25 @@
   .page-head .eyebrow{justify-content:center;display:flex;}
   .page-head h2{margin:0 auto 10px;}
   .page-head .lead{margin:0 auto 10px;}
-  #splash{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:var(--navy);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease, visibility .6s ease;}
-  @keyframes splashForceHide{to{opacity:0;visibility:hidden;pointer-events:none;}}
-  #splash{animation:splashForceHide 0.01s 6s forwards;}
-  #splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
-  #splash img{width:92px;height:92px;border-radius:22px;margin-bottom:22px;animation:splashPop .7s ease;}
-  #splash h2{color:#fff;font-size:1.25rem;margin-bottom:6px;opacity:0;animation:fadeIn .6s ease .25s forwards;}
-  #splash p{color:#9aa3d1;font-size:0.85rem;margin-bottom:30px;opacity:0;animation:fadeIn .6s ease .4s forwards;}
-  #splash .bar-track{width:180px;height:4px;background:rgba(255,255,255,0.15);border-radius:999px;overflow:hidden;}
-  #splash .bar-fill{height:100%;width:0%;background:linear-gradient(100deg,var(--blue),var(--purple));border-radius:999px;animation:fillBar 4.3s ease forwards;}
-  @keyframes splashPop{from{transform:scale(0.6);opacity:0;}to{transform:scale(1);opacity:1;}}
-  @keyframes fadeIn{to{opacity:1;}}
-  @keyframes fillBar{to{width:100%;}}
+
+  .blog-grid{display:grid;gap:20px;}
+  @media(min-width:720px){.blog-grid{grid-template-columns:repeat(2,1fr);}}
+  .blog-card{background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;}
+  .blog-card .cover{width:52px;height:52px;border-radius:13px;background:linear-gradient(100deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:16px;}
+  .blog-card .meta{color:var(--blue);font-size:0.78rem;font-weight:600;margin-bottom:8px;}
+  .blog-card h3{font-size:1.15rem;margin-bottom:10px;line-height:1.35;}
+  .blog-card p{color:var(--muted);font-size:0.9rem;flex:1;margin-bottom:16px;line-height:1.6;}
+  .blog-card .read-link{align-self:flex-start;color:var(--blue);font-weight:700;font-size:0.88rem;}
+  .blog-card .read-link:hover{text-decoration:underline;}
+  .tag-chip{display:inline-block;background:rgba(255,255,255,0.07);border:1px solid var(--line);color:var(--muted);font-size:0.72rem;padding:4px 10px;border-radius:999px;margin:0 6px 6px 0;}
+
+  .post-wrap{max-width:720px;margin:0 auto;padding:48px 24px 64px;}
+  .post-back{color:var(--blue);font-size:0.88rem;font-weight:600;margin-bottom:20px;display:inline-block;}
+  .post-cover{width:60px;height:60px;border-radius:15px;background:linear-gradient(100deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:20px;}
+  .post-meta{color:var(--blue);font-size:0.85rem;font-weight:600;margin-bottom:10px;}
+  .post-title{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:700;margin-bottom:18px;line-height:1.25;}
+  .post-body{color:var(--ink);font-size:1rem;line-height:1.85;white-space:pre-wrap;}
+  .post-tags{margin-top:28px;padding-top:20px;border-top:1px solid var(--line);}
 </style>
 
 </head>
@@ -129,17 +136,12 @@
   menuBtn.addEventListener('click', ()=> mobileMenu.classList.toggle('open'));
   mobileMenu.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=> mobileMenu.classList.remove('open')));
 </script>
-<div class="page-head">
-  <div class="eyebrow">Our Team</div>
-  <h2>Meet the people behind VYA</h2>
-  <p class="lead">The founding members leading Visionary Youth Alliance.</p>
-</div>
-
-<section>
-  <div class="wrap">
-    <div class="about-grid" id="t-team"></div>
+<div class="post-wrap" id="post-wrap">
+  <a class="post-back" href="blog.html">← Back to Blog</a>
+  <div id="post-content">
+    <p class="lead">Loading article…</p>
   </div>
-</section>
+</div>
 <footer>
   <div class="fgrid">
     <div>
@@ -179,12 +181,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-function render(d){
-  const team = d.team || [];
-  document.getElementById('t-team').innerHTML = team.length
-    ? team.map(m=>`<div class="card"><div class="ic">👤</div><h3>${m.name}</h3><p>${m.role}</p></div>`).join('')
-    : '<p class="lead" style="margin:0 auto">Team members coming soon.</p>';
-}
+
+
 let dataLoaded = false, minTimeElapsed = false;
 function tryHideSplash(){
   if(dataLoaded && minTimeElapsed){
@@ -193,6 +191,29 @@ function tryHideSplash(){
   }
 }
 setTimeout(()=>{ minTimeElapsed = true; tryHideSplash(); }, 4500);
+
+function render(d){
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  const posts = d.blog || [];
+  const post = posts.find(p => String(p.id) === String(id));
+  const container = document.getElementById('post-content');
+  if(!post){
+    container.innerHTML = '<p class="lead">Article not found. <a href="blog.html" style="color:var(--blue)">Go back to Blog</a>.</p>';
+    document.title = 'Article not found — Visionary Youth Alliance';
+    return;
+  }
+  document.title = post.title + ' — Visionary Youth Alliance';
+  const tagsHtml = (post.tags && post.tags.length) ? `<div class="post-tags">${post.tags.map(t=>`<span class="tag-chip">#${t}</span>`).join('')}</div>` : '';
+  const bodyHtml = (post.content||'').split(/\n\n+/).map(para=>`<p>${para.replace(/\n/g,'<br>')}</p>`).join('');
+  container.innerHTML = `
+    <div class="post-cover">${post.icon||'📝'}</div>
+    <div class="post-meta">${post.author?post.author+' · ':''}${post.date||''}</div>
+    <h1 class="post-title">${post.title}</h1>
+    <div class="post-body">${bodyHtml}</div>
+    ${tagsHtml}
+  `;
+}
 
 db.collection('site').doc('content').get().then(s=>{
   try{
