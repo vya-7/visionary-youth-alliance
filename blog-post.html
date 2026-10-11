@@ -133,6 +133,27 @@
   .post-title{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:700;margin-bottom:18px;line-height:1.25;}
   .post-body{color:var(--ink);font-size:1rem;line-height:1.85;white-space:pre-wrap;}
   .post-tags{margin-top:28px;padding-top:20px;border-top:1px solid var(--line);}
+
+  .engage-bar{display:flex;align-items:center;gap:14px;margin-top:28px;padding-top:24px;border-top:1px solid var(--line);}
+  .like-btn{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:10px 20px;font-weight:700;font-size:0.92rem;cursor:pointer;color:var(--ink);transition:transform .15s,border-color .15s,background .15s;font-family:inherit;}
+  .like-btn:active{transform:scale(0.94);}
+  .like-btn.liked{background:#fff0f3;border-color:#ffb3c6;color:#e0245e;}
+  .like-btn .heart{font-size:1.1rem;}
+  .comment-count-badge{color:var(--muted);font-size:0.9rem;font-weight:600;}
+
+  .comments-section{max-width:720px;margin:0 auto;padding:0 24px 64px;}
+  .comments-section h3{font-size:1.2rem;margin-bottom:18px;}
+  .comment-form{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:24px;}
+  .comment-form input,.comment-form textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:0.92rem;margin-bottom:10px;}
+  .comment-form textarea{min-height:80px;resize:vertical;}
+  .comment-form button{background:linear-gradient(100deg,var(--blue),var(--purple));color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:inherit;}
+  .comment-item{border-bottom:1px solid var(--line);padding:16px 0;}
+  .comment-item:last-child{border-bottom:none;}
+  .comment-item .c-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;}
+  .comment-item .c-name{font-weight:700;font-size:0.92rem;}
+  .comment-item .c-date{color:var(--muted);font-size:0.78rem;white-space:nowrap;}
+  .comment-item .c-text{color:var(--ink);font-size:0.92rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;}
+  .no-comments{color:var(--muted);font-size:0.9rem;}
 </style>
 
 </head>
@@ -166,7 +187,20 @@
   <div id="post-content">
     <p class="lead">Loading article…</p>
   </div>
+  <div class="engage-bar" id="engage-bar" style="display:none"></div>
 </div>
+
+<div class="comments-section" id="comments-wrap" style="display:none">
+  <h3><span id="comment-count-badge">💬 Comments</span></h3>
+  <div class="comment-form">
+    <input id="cm-name" placeholder="Your name" maxlength="60">
+    <textarea id="cm-text" placeholder="Write a comment…" maxlength="500"></textarea>
+    <button type="button" onclick="submitComment()">Post Comment</button>
+    <p id="cm-status" style="font-size:0.82rem;margin-top:8px;color:var(--muted)"></p>
+  </div>
+  <div id="comments-list"></div>
+</div>
+
 <footer>
   <div class="fgrid">
     <div>
@@ -218,6 +252,10 @@ function tryHideSplash(){
 }
 setTimeout(()=>{ minTimeElapsed = true; tryHideSplash(); }, 4500);
 
+let currentPostId = null;
+
+function escC(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
 function render(d){
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
@@ -239,6 +277,87 @@ function render(d){
     <div class="post-body">${bodyHtml}</div>
     ${tagsHtml}
   `;
+  currentPostId = String(post.id);
+  document.getElementById('engage-bar').style.display = 'flex';
+  document.getElementById('comments-wrap').style.display = 'block';
+  loadLikeState(currentPostId);
+  loadComments(currentPostId);
+}
+
+function renderEngageBar(count, liked){
+  document.getElementById('engage-bar').innerHTML = `
+    <button type="button" class="like-btn${liked?' liked':''}" id="like-btn" onclick="toggleLike()"><span class="heart">${liked?'❤️':'🤍'}</span><span id="like-count">${count}</span></button>
+  `;
+}
+
+function loadLikeState(postId){
+  let liked = false;
+  try{ liked = localStorage.getItem('vya_liked_'+postId) === '1'; }catch(e){}
+  db.collection('blogLikes').doc(postId).get().then(doc=>{
+    const count = doc.exists ? (doc.data().count||0) : 0;
+    renderEngageBar(Math.max(0,count), liked);
+  }).catch(()=>{ renderEngageBar(0, liked); });
+}
+
+function toggleLike(){
+  if(!currentPostId) return;
+  const btn = document.getElementById('like-btn');
+  let liked = false;
+  try{ liked = localStorage.getItem('vya_liked_'+currentPostId) === '1'; }catch(e){}
+  const delta = liked ? -1 : 1;
+  const ref = db.collection('blogLikes').doc(currentPostId);
+  btn.disabled = true;
+  ref.set({ count: firebase.firestore.FieldValue.increment(delta) }, {merge:true}).then(()=>{
+    try{ localStorage.setItem('vya_liked_'+currentPostId, liked ? '0' : '1'); }catch(e){}
+    return ref.get();
+  }).then(doc=>{
+    const count = doc.exists ? Math.max(0, doc.data().count||0) : 0;
+    renderEngageBar(count, !liked);
+    document.getElementById('like-btn').disabled = false;
+  }).catch(()=>{ btn.disabled = false; });
+}
+
+function loadComments(postId){
+  const list = document.getElementById('comments-list');
+  const badge = document.getElementById('comment-count-badge');
+  list.innerHTML = '<p class="no-comments">Loading comments…</p>';
+  db.collection('blogComments').where('postId','==',postId).get().then(snap=>{
+    const comments = [];
+    snap.forEach(doc=>comments.push(doc.data()));
+    comments.sort((a,b)=> new Date(b.date||0) - new Date(a.date||0));
+    badge.textContent = '💬 ' + comments.length + (comments.length===1?' Comment':' Comments');
+    if(!comments.length){ list.innerHTML = '<p class="no-comments">No comments yet — be the first to share your thoughts.</p>'; return; }
+    list.innerHTML = comments.map(c=>`<div class="comment-item"><div class="c-head"><span class="c-name">${escC(c.name||'Anonymous')}</span><span class="c-date">${escC((c.date||'').slice(0,10))}</span></div><div class="c-text">${escC(c.text)}</div></div>`).join('');
+  }).catch(()=>{
+    badge.textContent = '💬 Comments';
+    list.innerHTML = '<p class="no-comments">Could not load comments.</p>';
+  });
+}
+
+function submitComment(){
+  const nameInput = document.getElementById('cm-name');
+  const textInput = document.getElementById('cm-text');
+  const status = document.getElementById('cm-status');
+  const name = nameInput.value.trim();
+  const text = textInput.value.trim();
+  if(!text){ status.textContent = 'Please write a comment first.'; status.style.color = '#e0245e'; return; }
+  if(!currentPostId) return;
+  status.textContent = 'Posting…';
+  status.style.color = 'var(--muted)';
+  db.collection('blogComments').add({
+    postId: currentPostId,
+    name: name || 'Anonymous',
+    text: text,
+    date: new Date().toISOString()
+  }).then(()=>{
+    textInput.value = '';
+    status.textContent = 'Comment posted!';
+    status.style.color = '#2e8b57';
+    loadComments(currentPostId);
+  }).catch(e=>{
+    status.textContent = 'Could not post: ' + e.message;
+    status.style.color = '#e0245e';
+  });
 }
 
 db.collection('site').doc('content').get().then(s=>{

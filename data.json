@@ -117,6 +117,10 @@
       "role": "General Secretary"
     }
   ],
+  "quizIntro": {
+    "title": "Pick a Sector & Start the Quiz",
+    "lead": "Each quiz has 15 questions drawn from that sector's question bank. We won't repeat a question you've already seen until you've gone through all of them."
+  },
   "quizSectors": [
     { "id": "islamic", "icon": "🕌", "name": "Islamic", "description": "Questions on Islamic history, values and general knowledge." },
     { "id": "world", "icon": "🌍", "name": "World", "description": "General knowledge questions about the world around us." },

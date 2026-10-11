@@ -134,6 +134,13 @@
   .blog-card p{color:var(--muted);font-size:.9rem;flex:1;margin-bottom:16px;line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
   .blog-card .read-link{align-self:flex-start;color:var(--blue);font-weight:700;font-size:.88rem;}
   .blog-card .read-link:hover{text-decoration:underline;}
+  .blog-card{position:relative;}
+  .blog-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(100deg,var(--blue),var(--purple));opacity:0;transition:opacity .22s;}
+  .blog-card:hover::before{opacity:1;}
+  .blog-card .bc-tags{margin-bottom:12px;}
+  .blog-card .bc-tags .tag-chip{margin:0 6px 6px 0;}
+  .blog-card .bc-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .blog-card .bc-likes{color:var(--muted);font-size:.84rem;font-weight:600;white-space:nowrap;}
   .bl-feat{display:block;margin-bottom:26px;border-radius:22px;overflow:hidden;color:#fff;background:linear-gradient(120deg,#16275f 0%,#3b1d8f 100%);padding:30px 26px;position:relative;box-shadow:0 14px 40px rgba(43,40,150,.28);transition:transform .22s;}
   .bl-feat:hover{transform:translateY(-3px);}
   .bl-feat .bf-badge{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:4px 12px;font-size:.74rem;font-weight:700;margin-bottom:14px;}
@@ -255,14 +262,18 @@ let blPosts=[];
 function blImg(u){ u=String(u||'').trim(); return /^https?:\/\//i.test(u) ? u.replace(/"/g,'%22') : ''; }
 function blCover(p){ const u=blImg(p.image); return u ? `<div class="cover cover-img"><img loading="lazy" decoding="async" src="${u}" alt=""></div>` : `<div class="cover">${p.icon||'📝'}</div>`; }
 function blRead(p){ const w=String(p.content||p.excerpt||'').trim().split(/\s+/).filter(Boolean).length; return Math.max(1,Math.round(w/200))+' min read'; }
+let blLikes = {};
 function blCard(p){
+  const tagsHtml = (p.tags && p.tags.length) ? `<div class="bc-tags">${p.tags.slice(0,2).map(t=>`<span class="tag-chip">#${t}</span>`).join('')}</div>` : '';
+  const likeCount = blLikes[p.id] || 0;
   return `<div class="blog-card">
     ${blCover(p)}
     <div class="bc-body">
       <div class="meta"><span>${p.author?p.author+' · ':''}${p.date||''}</span><span>⏱ ${blRead(p)}</span></div>
       <h3>${p.title}</h3>
       <p>${(p.excerpt||(p.content||'').slice(0,120)+'…')}</p>
-      <a class="read-link" href="blog-post.html?id=${encodeURIComponent(p.id)}">Read Article →</a>
+      ${tagsHtml}
+      <div class="bc-foot"><a class="read-link" href="blog-post.html?id=${encodeURIComponent(p.id)}">Read Article →</a><span class="bc-likes">❤️ ${likeCount}</span></div>
     </div></div>`;
 }
 function blShow(list, isSearch){
@@ -293,15 +304,24 @@ function render(d){
   blShow(blPosts,false);
 }
 
+function loadLikesThenRerender(){
+  db.collection('blogLikes').get().then(snap=>{
+    snap.forEach(doc=>{ blLikes[doc.id] = (doc.data().count)||0; });
+    if(blPosts.length) blShow(blPosts, !!document.getElementById('bl-q').value.trim());
+  }).catch(()=>{});
+}
+
 db.collection('site').doc('content').get().then(s=>{
   try{
     if(s.exists) render(s.data());
     else fetch('data.json?v='+Date.now()).then(r=>r.json()).then(render).catch(()=>{});
   }catch(e){ console.error(e); }
   dataLoaded = true; tryHideSplash();
+  loadLikesThenRerender();
 }).catch(()=>{
   fetch('data.json?v='+Date.now()).then(r=>r.json()).then(render).catch(()=>{});
   dataLoaded = true; tryHideSplash();
+  loadLikesThenRerender();
 });
 </script>
 </body>
