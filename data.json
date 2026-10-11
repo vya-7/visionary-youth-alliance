@@ -117,6 +117,11 @@
       "role": "General Secretary"
     }
   ],
+  "quizSectors": [
+    { "id": "islamic", "icon": "🕌", "name": "Islamic", "description": "Questions on Islamic history, values and general knowledge." },
+    { "id": "world", "icon": "🌍", "name": "World", "description": "General knowledge questions about the world around us." },
+    { "id": "national", "icon": "🇧🇩", "name": "National", "description": "Questions about Bangladesh — history, culture and current affairs." }
+  ],
   "blog": [
     {
       "id": "welcome-to-vya",

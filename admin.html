@@ -59,6 +59,7 @@
   <div class="navitem" data-view="team">👥 Team Members</div>
   <div class="navitem" data-view="network">🌐 Our Network</div>
   <div class="navitem" data-view="blog">✍️ Blog &amp; Articles</div>
+  <div class="navitem" data-view="quiz">🧠 Quiz</div>
   <div class="navgroup">Notice</div>
   <div class="navitem" data-view="join">🤝 Join Section</div>
   <div class="navgroup">Settings</div>
@@ -137,6 +138,50 @@
         <div id="blog-list"></div>
         <button type="button" class="btn-add" onclick="addBlogPost()">+ Add article</button>
         <p class="hint">Posts show newest first on the Blog page, sorted by Date.</p>
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-quiz">
+      <fieldset>
+        <legend>Quiz Sectors</legend>
+        <div id="quizsectors-list"></div>
+        <button type="button" class="btn-add" onclick="addQuizSector()">+ Add sector</button>
+        <p class="hint">Sectors show up as categories on the "Test Your Knowledge" page (e.g. Islamic, World, National). The "id" must be unique, short, lowercase, no spaces (e.g. islamic).</p>
+      </fieldset>
+      <fieldset>
+        <legend>Add Questions (bulk import)</legend>
+        <label>Sector</label>
+        <select id="qz-import-sector"></select>
+        <label>Paste questions</label>
+        <textarea id="qz-import-text" style="min-height:220px;font-family:monospace" placeholder="Q: Question text here?
+A) Option one
+B) Option two
+C) Option three
+D) Option four
+Correct: B
+
+Q: Next question...
+A) ...
+B) ...
+C) ...
+D) ...
+Correct: A"></textarea>
+        <p class="hint">One question per block, separated by a blank line. Each block needs a "Q:" line, option lines starting "A)" "B)" "C)" "D)", and a "Correct: X" line with the right letter. Paste as many blocks as you like — add your 100 questions in one go, or in batches.</p>
+        <button type="button" class="btn-add" onclick="importQuizQuestions()">⬆️ Import Questions to This Sector</button>
+        <p id="qz-import-status" class="hint"></p>
+      </fieldset>
+      <fieldset>
+        <legend>Question Bank Status</legend>
+        <div id="qz-counts"></div>
+        <button type="button" class="btn-add" onclick="loadQuizCounts()">🔄 Refresh Counts</button>
+        <p class="hint">A sector needs at least 15 questions for a quiz attempt to work.</p>
+      </fieldset>
+      <fieldset>
+        <legend style="color:#f87171">Danger Zone</legend>
+        <label>Sector to clear</label>
+        <select id="qz-clear-sector"></select>
+        <button type="button" class="btn-add" style="border-color:#f87171;color:#f87171" onclick="clearQuizSector()">🗑️ Delete All Questions in This Sector</button>
+        <p class="hint">This permanently deletes every question in the chosen sector. It does not affect other sectors.</p>
       </fieldset>
     </div>
 
@@ -261,6 +306,8 @@ function fillForm(d){
   renderPillars(d.programs.pillars || []);
   renderTeam(d.team||[]);
   renderNetwork(d.network||[]);
+  renderQuizSectors(d.quizSectors||[]);
+  loadQuizCounts();
   renderBlog(d.blog||[]);
   document.getElementById('join-title').value = d.join.title;
   document.getElementById('join-text').value = d.join.text;
@@ -390,6 +437,138 @@ function renderPillars(pillars){
 function addPillar(){ pillarsData.push({icon:'🚀',status:'',title:'',meta:'',price:'',eligibility:'',text:'',highlights:[],link:''}); renderPillars(pillarsData); }
 function removePillar(i){ pillarsData.splice(i,1); renderPillars(pillarsData); }
 
+let quizSectorsData = [];
+function renderQuizSectors(sectors){
+  quizSectorsData = sectors;
+  document.getElementById('quizsectors-list').innerHTML = quizSectorsData.map((s,i)=>`
+    <div class="card-item row row2">
+      <input value="${esc(s.id)}" placeholder="id (e.g. islamic)" onchange="quizSectorsData[${i}].id=this.value.trim(); populateSectorSelects();">
+      <input value="${esc(s.icon)}" placeholder="Emoji icon (e.g. 🕌)" onchange="quizSectorsData[${i}].icon=this.value">
+      <input value="${esc(s.name)}" placeholder="Display name (e.g. Islamic)" onchange="quizSectorsData[${i}].name=this.value; populateSectorSelects();">
+      <input value="${esc(s.description)}" placeholder="Short description" onchange="quizSectorsData[${i}].description=this.value">
+      <button type="button" class="rm" onclick="removeQuizSector(${i})">✕ remove</button>
+    </div>`).join('');
+  populateSectorSelects();
+}
+function addQuizSector(){ quizSectorsData.push({id:'',icon:'📚',name:'',description:''}); renderQuizSectors(quizSectorsData); }
+function removeQuizSector(i){ quizSectorsData.splice(i,1); renderQuizSectors(quizSectorsData); }
+
+function populateSectorSelects(){
+  const opts = quizSectorsData.filter(s=>s.id).map(s=>`<option value="${esc(s.id)}">${esc(s.icon||'')} ${esc(s.name||s.id)}</option>`).join('');
+  const sel1 = document.getElementById('qz-import-sector');
+  const sel2 = document.getElementById('qz-clear-sector');
+  if(sel1) sel1.innerHTML = opts || '<option value="">(add a sector first)</option>';
+  if(sel2) sel2.innerHTML = opts || '<option value="">(add a sector first)</option>';
+}
+
+function parseQuizText(text){
+  const blocks = text.split(/\n\s*\n/).map(b=>b.trim()).filter(Boolean);
+  const questions = [];
+  const errors = [];
+  blocks.forEach((block, bi)=>{
+    const lines = block.split('\n').map(l=>l.trim()).filter(Boolean);
+    let qText = '';
+    const opts = [];
+    let correctLetter = '';
+    lines.forEach(line=>{
+      let m;
+      if(m = line.match(/^Q:\s*(.+)$/i)){ qText = m[1].trim(); }
+      else if(m = line.match(/^([A-Da-d])\)\s*(.+)$/)){ opts.push({letter:m[1].toUpperCase(), text:m[2].trim()}); }
+      else if(m = line.match(/^Correct:\s*([A-Da-d])/i)){ correctLetter = m[1].toUpperCase(); }
+    });
+    if(!qText || opts.length < 2 || !correctLetter){
+      errors.push('Block ' + (bi+1) + ': could not parse — missing question, options, or correct answer line.');
+      return;
+    }
+    const correctIdx = opts.findIndex(o=>o.letter===correctLetter);
+    if(correctIdx === -1){
+      errors.push('Block ' + (bi+1) + ': "Correct: ' + correctLetter + '" does not match any option letter.');
+      return;
+    }
+    questions.push({ text: qText, options: opts.map(o=>o.text), correct: correctIdx });
+  });
+  return { questions, errors };
+}
+
+async function importQuizQuestions(){
+  const sector = document.getElementById('qz-import-sector').value;
+  const statusEl = document.getElementById('qz-import-status');
+  if(!sector){ statusEl.textContent = 'Add and save a sector first, then pick it here.'; statusEl.style.color = '#f87171'; return; }
+  const raw = document.getElementById('qz-import-text').value;
+  const { questions, errors } = parseQuizText(raw);
+  if(!questions.length){
+    statusEl.textContent = 'No valid questions found. ' + (errors[0] || 'Check the format in the hint below.');
+    statusEl.style.color = '#f87171';
+    return;
+  }
+  statusEl.textContent = 'Importing ' + questions.length + ' question(s)...';
+  statusEl.style.color = '#9aa3d1';
+  try{
+    let imported = 0;
+    for(let start=0; start<questions.length; start+=450){
+      const chunk = questions.slice(start, start+450);
+      const batch = db.batch();
+      chunk.forEach(q=>{
+        const ref = db.collection('quizQuestions').doc();
+        batch.set(ref, { sector: sector, text: q.text, options: q.options, correct: q.correct, createdAt: new Date().toISOString() });
+      });
+      await batch.commit();
+      imported += chunk.length;
+    }
+    let msg = 'Imported ' + imported + ' question(s) into "' + sector + '".';
+    if(errors.length) msg += ' (' + errors.length + ' block(s) skipped — check formatting.)';
+    statusEl.textContent = msg;
+    statusEl.style.color = '#4ade80';
+    document.getElementById('qz-import-text').value = '';
+    loadQuizCounts();
+  }catch(e){
+    statusEl.textContent = 'Import failed: ' + e.message;
+    statusEl.style.color = '#f87171';
+  }
+}
+
+async function loadQuizCounts(){
+  const countsEl = document.getElementById('qz-counts');
+  if(!countsEl) return;
+  if(!quizSectorsData.filter(s=>s.id).length){ countsEl.innerHTML = '<p class="hint">Add a sector above first.</p>'; return; }
+  countsEl.innerHTML = '<p class="hint">Loading…</p>';
+  try{
+    const rows = await Promise.all(quizSectorsData.filter(s=>s.id).map(async s=>{
+      const snap = await db.collection('quizQuestions').where('sector','==',s.id).get();
+      return { s, count: snap.size };
+    }));
+    countsEl.innerHTML = rows.map(r=>`
+      <div class="card-item row row2" style="align-items:center">
+        <div>${esc(r.s.icon||'📚')} ${esc(r.s.name||r.s.id)}</div>
+        <div><b>${r.count}</b> question(s)${r.count < 15 ? ' <span style="color:#f87171">(need at least 15)</span>' : ''}</div>
+      </div>`).join('');
+  }catch(e){
+    countsEl.innerHTML = '<p class="hint" style="color:#f87171">Could not load counts: '+e.message+'</p>';
+  }
+}
+
+async function clearQuizSector(){
+  const sector = document.getElementById('qz-clear-sector').value;
+  if(!sector) return;
+  if(!confirm('Delete ALL questions in the "' + sector + '" sector? This cannot be undone.')) return;
+  try{
+    const snap = await db.collection('quizQuestions').where('sector','==',sector).get();
+    let deleted = 0;
+    const docs = snap.docs;
+    for(let start=0; start<docs.length; start+=450){
+      const chunk = docs.slice(start, start+450);
+      const batch = db.batch();
+      chunk.forEach(d=>batch.delete(d.ref));
+      await batch.commit();
+      deleted += chunk.length;
+    }
+    alert('Deleted ' + deleted + ' question(s).');
+    loadQuizCounts();
+  }catch(e){
+    alert('Delete failed: ' + e.message);
+  }
+}
+
 function collectGroup(name){
   const items = [...document.querySelectorAll(`[data-g="${name}"]`)];
   const byIndex = {};
@@ -405,6 +584,7 @@ function buildData(){
     programs: { lead: document.getElementById('prog-lead').value, pillars: pillarsData.filter(p=>p.title || p.text || p.link) },
     team: teamData.filter(m=>m.name || m.role),
     network: networkData.filter(n=>n.name && n.url),
+    quizSectors: quizSectorsData.filter(s=>s.id && s.name),
     blog: blogData.filter(p=>p.title || p.content).map(p=>({...p, id: p.id || ('post-'+Date.now()+'-'+Math.random().toString(36).slice(2,7))})),
     join: { title: document.getElementById('join-title').value, text: document.getElementById('join-text').value },
     contact: { email: document.getElementById('contact-email').value, phone: document.getElementById('contact-phone').value, address: document.getElementById('contact-address').value },
