@@ -61,6 +61,7 @@
   <div class="navitem" data-view="blog">✍️ Blog &amp; Articles</div>
   <div class="navitem" data-view="quiz">🧠 Quiz</div>
   <div class="navgroup">Notice</div>
+  <div class="navitem" data-view="notice">📢 Notice Banner</div>
   <div class="navitem" data-view="join">🤝 Join Section</div>
   <div class="navgroup">Settings</div>
   <div class="navitem" data-view="contact">📬 Contact Info</div>
@@ -143,6 +144,11 @@
 
     <div class="view" id="v-quiz">
       <fieldset>
+        <legend>Quiz Page Intro</legend>
+        <label>Heading</label><input id="quiz-intro-title" placeholder="Pick a Sector &amp; Start the Quiz">
+        <label>Intro text</label><textarea id="quiz-intro-lead" placeholder="Short intro shown above the sector cards on the Quiz page"></textarea>
+      </fieldset>
+      <fieldset>
         <legend>Quiz Sectors</legend>
         <div id="quizsectors-list"></div>
         <button type="button" class="btn-add" onclick="addQuizSector()">+ Add sector</button>
@@ -182,6 +188,19 @@ Correct: A"></textarea>
         <select id="qz-clear-sector"></select>
         <button type="button" class="btn-add" style="border-color:#f87171;color:#f87171" onclick="clearQuizSector()">🗑️ Delete All Questions in This Sector</button>
         <p class="hint">This permanently deletes every question in the chosen sector. It does not affect other sectors.</p>
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-notice">
+      <fieldset>
+        <legend>Notice Banner</legend>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--ink);font-size:.9rem;"><input type="checkbox" id="notice-enabled" style="width:auto"> Show banner on the website</label>
+        <label>Message</label><textarea id="notice-text" placeholder="e.g. Registration for Leadership Camp is open until 30 October!"></textarea>
+        <label>Link (optional)</label><input id="notice-link" placeholder="https://forms.google.com/...  or  programs.html">
+        <label>Link text (optional)</label><input id="notice-linktext" placeholder="Register now">
+        <label>Color</label>
+        <select id="notice-style"><option value="">Blue / Purple (default)</option><option value="ok">Green (good news)</option><option value="warn">Yellow (important)</option><option value="alert">Red (urgent)</option></select>
+        <p class="hint">The banner appears at the top of every page. Visitors can close it; it comes back when you change the message. Click "Save Changes" to publish.</p>
       </fieldset>
     </div>
 
@@ -306,6 +325,15 @@ function fillForm(d){
   renderPillars(d.programs.pillars || []);
   renderTeam(d.team||[]);
   renderNetwork(d.network||[]);
+  const qi = d.quizIntro || {};
+  document.getElementById('quiz-intro-title').value = qi.title || '';
+  document.getElementById('quiz-intro-lead').value = qi.lead || '';
+  const nt = d.notice || {};
+  document.getElementById('notice-enabled').checked = !!nt.enabled;
+  document.getElementById('notice-text').value = nt.text || '';
+  document.getElementById('notice-link').value = nt.link || '';
+  document.getElementById('notice-linktext').value = nt.linkText || '';
+  document.getElementById('notice-style').value = nt.style || '';
   renderQuizSectors(d.quizSectors||[]);
   loadQuizCounts();
   renderBlog(d.blog||[]);
@@ -584,6 +612,8 @@ function buildData(){
     programs: { lead: document.getElementById('prog-lead').value, pillars: pillarsData.filter(p=>p.title || p.text || p.link) },
     team: teamData.filter(m=>m.name || m.role),
     network: networkData.filter(n=>n.name && n.url),
+    quizIntro: { title: document.getElementById('quiz-intro-title').value, lead: document.getElementById('quiz-intro-lead').value },
+    notice: { enabled: document.getElementById('notice-enabled').checked, text: document.getElementById('notice-text').value, link: document.getElementById('notice-link').value, linkText: document.getElementById('notice-linktext').value, style: document.getElementById('notice-style').value },
     quizSectors: quizSectorsData.filter(s=>s.id && s.name),
     blog: blogData.filter(p=>p.title || p.content).map(p=>({...p, id: p.id || ('post-'+Date.now()+'-'+Math.random().toString(36).slice(2,7))})),
     join: { title: document.getElementById('join-title').value, text: document.getElementById('join-text').value },

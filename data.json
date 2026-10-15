@@ -117,6 +117,7 @@
       "role": "General Secretary"
     }
   ],
+  "notice": { "enabled": false, "text": "", "link": "", "linkText": "", "style": "" },
   "quizIntro": {
     "title": "Pick a Sector & Start the Quiz",
     "lead": "Each quiz has 15 questions drawn from that sector's question bank. We won't repeat a question you've already seen until you've gone through all of them."
