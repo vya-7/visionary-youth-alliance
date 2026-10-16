@@ -60,6 +60,7 @@
   <div class="navitem" data-view="network">🌐 Our Network</div>
   <div class="navitem" data-view="blog">✍️ Blog &amp; Articles</div>
   <div class="navitem" data-view="quiz">🧠 Quiz</div>
+  <div class="navitem" data-view="certs">🎓 Certificates</div>
   <div class="navgroup">Notice</div>
   <div class="navitem" data-view="notice">📢 Notice Banner</div>
   <div class="navitem" data-view="join">🤝 Join Section</div>
@@ -188,6 +189,27 @@ Correct: A"></textarea>
         <select id="qz-clear-sector"></select>
         <button type="button" class="btn-add" style="border-color:#f87171;color:#f87171" onclick="clearQuizSector()">🗑️ Delete All Questions in This Sector</button>
         <p class="hint">This permanently deletes every question in the chosen sector. It does not affect other sectors.</p>
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-certs">
+      <fieldset>
+        <legend>Issue Certificates</legend>
+        <label>Certificate title (program / achievement)</label><input id="cert-title" placeholder="e.g. Leadership Development Workshop">
+        <label>Issue date</label><input id="cert-date" type="date">
+        <label>Note (optional, shown on certificate)</label><input id="cert-note" placeholder="e.g. Completed with distinction">
+        <label>Recipient name(s) — one per line</label>
+        <textarea id="cert-names" style="min-height:120px" placeholder="Rahim Uddin&#10;Karima Akter&#10;..."></textarea>
+        <button type="button" class="btn-add" onclick="issueCerts()">🎓 Issue certificate(s)</button>
+        <p id="cert-status" class="hint"></p>
+        <p class="hint">Each recipient gets a unique ID (like VYA-AB12-CD34). Anyone can check it at verify.html. Certificates are saved instantly — no need to press Save Changes.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Issued Certificates</legend>
+        <input id="cert-search" placeholder="Search by name, ID or title…" oninput="renderCerts()">
+        <p class="hint" id="cert-count"></p>
+        <div id="cert-list"></div>
+        <button type="button" class="btn-add" onclick="loadCerts()">🔄 Refresh list</button>
       </fieldset>
     </div>
 
@@ -336,6 +358,7 @@ function fillForm(d){
   document.getElementById('notice-style').value = nt.style || '';
   renderQuizSectors(d.quizSectors||[]);
   loadQuizCounts();
+  loadCerts();
   renderBlog(d.blog||[]);
   document.getElementById('join-title').value = d.join.title;
   document.getElementById('join-text').value = d.join.text;
@@ -596,6 +619,94 @@ async function clearQuizSector(){
     alert('Delete failed: ' + e.message);
   }
 }
+
+const CERT_ALPHA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function genCertId(){
+  const b = new Uint8Array(8); crypto.getRandomValues(b);
+  let t = ''; b.forEach(x=>{ t += CERT_ALPHA[x & 31]; });
+  return 'VYA-' + t.slice(0,4) + '-' + t.slice(4);
+}
+function certLink(id){ return new URL('verify.html?id=' + encodeURIComponent(id), location.href).href; }
+let certsData = [], certShown = [];
+
+async function loadCerts(){
+  const countEl = document.getElementById('cert-count');
+  if(!countEl) return;
+  countEl.textContent = 'Loading…';
+  try{
+    const snap = await db.collection('certificates').orderBy('createdAt','desc').limit(1000).get();
+    certsData = snap.docs.map(d=>({ id: d.id, ...d.data() }));
+    renderCerts();
+  }catch(e){ countEl.textContent = 'Could not load certificates: ' + e.message; }
+}
+function renderCerts(){
+  const q = (document.getElementById('cert-search').value || '').trim().toLowerCase();
+  certShown = certsData.filter(c => !q || (c.id+' '+(c.name||'')+' '+(c.title||'')).toLowerCase().includes(q));
+  document.getElementById('cert-count').textContent = certsData.length + ' certificate(s) issued' + (q ? ' — showing ' + certShown.length : '');
+  document.getElementById('cert-list').innerHTML = certShown.map((c,i)=>`
+    <div class="card-item" style="${c.revoked?'opacity:.65':''}">
+      <div style="font-family:monospace;font-weight:700;letter-spacing:.04em">${esc(c.id)} ${c.revoked?'<span style="color:#f87171;font-family:inherit;font-size:.75rem">· REVOKED</span>':''}</div>
+      <div style="margin-top:4px"><b>${esc(c.name)}</b> — ${esc(c.title)}</div>
+      <div class="hint">${esc(c.date||'')}${c.note ? ' · ' + esc(c.note) : ''}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px" onclick="certAction('copy',${i})">🔗 Copy link</button>
+        <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px" onclick="certAction('open',${i})">👁 Open</button>
+        <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px" onclick="certAction('revoke',${i})">${c.revoked?'♻️ Restore':'🚫 Revoke'}</button>
+        <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px;color:#f87171;border-color:#f87171" onclick="certAction('delete',${i})">🗑 Delete</button>
+      </div>
+    </div>`).join('') || '<p class="hint">No certificates yet.</p>';
+}
+async function certAction(kind, i){
+  const c = certShown[i]; if(!c) return;
+  try{
+    if(kind === 'copy'){
+      const link = certLink(c.id);
+      try{ await navigator.clipboard.writeText(link); alert('Link copied:\n' + link); }
+      catch(e){ prompt('Copy this link:', link); }
+    } else if(kind === 'open'){
+      window.open(certLink(c.id), '_blank');
+    } else if(kind === 'revoke'){
+      const next = !c.revoked;
+      if(next && !confirm('Revoke ' + c.id + '? The verify page will show it as invalid.')) return;
+      await db.collection('certificates').doc(c.id).update({ revoked: next });
+      await loadCerts();
+    } else if(kind === 'delete'){
+      if(!confirm('Permanently delete ' + c.id + ' (' + c.name + ')? Its verify link will stop working.')) return;
+      await db.collection('certificates').doc(c.id).delete();
+      await loadCerts();
+    }
+  }catch(e){ alert('Failed: ' + e.message); }
+}
+async function issueCerts(){
+  const st = document.getElementById('cert-status');
+  const title = document.getElementById('cert-title').value.trim();
+  const date = document.getElementById('cert-date').value || new Date().toISOString().slice(0,10);
+  const note = document.getElementById('cert-note').value.trim();
+  const names = document.getElementById('cert-names').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!title){ st.textContent = 'Please enter the certificate title.'; st.style.color = '#f87171'; return; }
+  if(!names.length){ st.textContent = 'Please enter at least one recipient name.'; st.style.color = '#f87171'; return; }
+  st.textContent = 'Issuing ' + names.length + ' certificate(s)…'; st.style.color = '#9aa3d1';
+  try{
+    const used = new Set(certsData.map(c=>c.id));
+    const issued = [];
+    for(let start=0; start<names.length; start+=400){
+      const batch = db.batch();
+      names.slice(start, start+400).forEach(name=>{
+        let id; do{ id = genCertId(); }while(used.has(id)); used.add(id);
+        const rec = { name, title, date, createdAt: new Date().toISOString(), revoked: false };
+        if(note) rec.note = note;
+        batch.set(db.collection('certificates').doc(id), rec);
+        issued.push({ id, name });
+      });
+      await batch.commit();
+    }
+    st.innerHTML = 'Issued ' + issued.length + ' certificate(s). ' + (issued.length === 1 ? 'ID: <b>' + esc(issued[0].id) + '</b>' : 'Find them in the list below.');
+    st.style.color = '#4ade80';
+    document.getElementById('cert-names').value = '';
+    await loadCerts();
+  }catch(e){ st.textContent = 'Failed: ' + e.message; st.style.color = '#f87171'; }
+}
+document.addEventListener('DOMContentLoaded', ()=>{ const d = document.getElementById('cert-date'); if(d && !d.value) d.value = new Date().toISOString().slice(0,10); });
 
 function collectGroup(name){
   const items = [...document.querySelectorAll(`[data-g="${name}"]`)];
