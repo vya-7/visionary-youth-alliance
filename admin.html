@@ -194,6 +194,18 @@ Correct: A"></textarea>
 
     <div class="view" id="v-certs">
       <fieldset>
+        <legend>Home Page — Verify Section</legend>
+        <label>Heading</label><input id="vp-intro-title" placeholder="Verify a Certificate">
+        <label>Intro text</label><textarea id="vp-intro-lead" placeholder="Short intro shown on the home page above the ID box"></textarea>
+        <p class="hint">This is the Verify box on the home page. Edit, then press 💾 Save Changes at the top.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Verify Page Intro</legend>
+        <label>Heading</label><input id="vf-intro-title" placeholder="Verify a Certificate">
+        <label>Intro text</label><textarea id="vf-intro-lead" placeholder="Short intro shown at the top of the verify page"></textarea>
+        <p class="hint">Edit, then press 💾 Save Changes at the top.</p>
+      </fieldset>
+      <fieldset>
         <legend>Issue Certificates</legend>
         <label>Certificate title (program / achievement)</label><input id="cert-title" placeholder="e.g. Leadership Development Workshop">
         <label>Issue date</label><input id="cert-date" type="date">
@@ -356,6 +368,12 @@ function fillForm(d){
   document.getElementById('notice-link').value = nt.link || '';
   document.getElementById('notice-linktext').value = nt.linkText || '';
   document.getElementById('notice-style').value = nt.style || '';
+  const vpr = d.verifyPromo || {};
+  document.getElementById('vp-intro-title').value = vpr.title || '';
+  document.getElementById('vp-intro-lead').value = vpr.lead || '';
+  const vi = d.verifyIntro || {};
+  document.getElementById('vf-intro-title').value = vi.title || '';
+  document.getElementById('vf-intro-lead').value = vi.lead || '';
   renderQuizSectors(d.quizSectors||[]);
   loadQuizCounts();
   loadCerts();
@@ -724,6 +742,8 @@ function buildData(){
     team: teamData.filter(m=>m.name || m.role),
     network: networkData.filter(n=>n.name && n.url),
     quizIntro: { title: document.getElementById('quiz-intro-title').value, lead: document.getElementById('quiz-intro-lead').value },
+    verifyPromo: { title: document.getElementById('vp-intro-title').value, lead: document.getElementById('vp-intro-lead').value },
+    verifyIntro: { title: document.getElementById('vf-intro-title').value, lead: document.getElementById('vf-intro-lead').value },
     notice: { enabled: document.getElementById('notice-enabled').checked, text: document.getElementById('notice-text').value, link: document.getElementById('notice-link').value, linkText: document.getElementById('notice-linktext').value, style: document.getElementById('notice-style').value },
     quizSectors: quizSectorsData.filter(s=>s.id && s.name),
     blog: blogData.filter(p=>p.title || p.content).map(p=>({...p, id: p.id || ('post-'+Date.now()+'-'+Math.random().toString(36).slice(2,7))})),

@@ -245,6 +245,18 @@ footer li a:hover{padding-left:6px;}
 .about-grid>*:nth-child(n+4),.pillars>*:nth-child(n+4),.blog-grid>*:nth-child(n+4){animation-delay:.22s;}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}}
 </style>
+<style id="vp-css">
+#verify-promo{padding-top:8px;}
+.vp-card{max-width:760px;margin:0 auto;text-align:center;background:#fff;border:1px solid #e6e9f7;border-radius:24px;padding:38px 26px;box-shadow:0 2px 4px rgba(15,21,51,.05),0 14px 36px rgba(43,60,160,.12);position:relative;overflow:hidden;}
+.vp-card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(100deg,#2b6cf6,#7b2ff7);}
+.vp-ic{width:56px;height:56px;margin:0 auto 14px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;background:linear-gradient(135deg,rgba(43,108,246,.14),rgba(123,47,247,.16));}
+.vp-card h2{margin:0 auto 10px;}
+.vp-card .lead{margin:0 auto 22px;}
+.vp-form{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;max-width:460px;margin:0 auto;}
+.vp-form input{flex:1 1 200px;min-width:0;padding:13px 14px;border:1px solid #d9def2;border-radius:10px;font-size:1rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;background:#fff;color:var(--ink);}
+.vp-form input:focus{outline:2px solid #7b6bff;border-color:transparent;}
+.vp-form .btn{border:none;cursor:pointer;font-family:inherit;}
+</style>
 </head>
 <body>
 <div id="splash">
@@ -347,6 +359,21 @@ footer li a:hover{padding-left:6px;}
   </div>
 </section>
 
+<section id="verify-promo">
+  <div class="wrap">
+    <div class="vp-card">
+      <div class="vp-ic">🛡️</div>
+      <div class="eyebrow" style="justify-content:center;display:flex">Certificate Verification</div>
+      <h2 id="vp-title">Verify a Certificate</h2>
+      <p class="lead" id="vp-lead">Received a certificate from Visionary Youth Alliance? Enter its unique ID to confirm it is genuine.</p>
+      <form class="vp-form" onsubmit="return vpGo(event)">
+        <input type="text" id="vp-id" placeholder="VYA-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Certificate ID">
+        <button type="submit" class="btn btn-primary">Verify</button>
+      </form>
+    </div>
+  </div>
+</section>
+
 <section id="join">
   <div class="join">
     <h2 id="j-title"></h2>
@@ -419,8 +446,19 @@ function closeNotice(){
   const bar = document.getElementById('notice-bar');
   if(bar){ try{ sessionStorage.setItem('vya_notice_closed', bar.dataset.text||''); }catch(e){} bar.style.display='none'; }
 }
+function vpGo(ev){
+  ev.preventDefault();
+  const v = document.getElementById('vp-id').value.trim();
+  window.location.href = 'verify.html' + (v ? '?id=' + encodeURIComponent(v) : '');
+  return false;
+}
 function renderSite(d){
   renderNotice(d);
+  try{
+    const vp = d.verifyPromo || {};
+    if(vp.title) document.getElementById('vp-title').textContent = vp.title;
+    if(vp.lead) document.getElementById('vp-lead').textContent = vp.lead;
+  }catch(e){}
   d.hero = d.hero || {}; d.stats = d.stats || []; d.about = d.about || {cards:[]}; d.about.cards = d.about.cards || [];
   d.programs = d.programs || {pillars:[]}; d.programs.pillars = d.programs.pillars || [];
   d.team = d.team || []; d.blog = d.blog || []; d.join = d.join || {}; d.contact = d.contact || {}; d.social = d.social || {};

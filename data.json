@@ -117,6 +117,7 @@
       "role": "General Secretary"
     }
   ],
+  "verifyPromo": { "title": "Verify a Certificate", "lead": "Received a certificate from Visionary Youth Alliance? Enter its unique ID to confirm it is genuine." },
   "verifyIntro": { "title": "Verify a Certificate", "lead": "Every certificate issued by Visionary Youth Alliance carries a unique ID. Enter it below to confirm the certificate is genuine and see who it was issued to." },
   "notice": { "enabled": false, "text": "", "link": "", "linkText": "", "style": "" },
   "quizIntro": {
