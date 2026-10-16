@@ -228,13 +228,15 @@ Correct: A"></textarea>
     <div class="view" id="v-notice">
       <fieldset>
         <legend>Notice Banner</legend>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--ink);font-size:.9rem;"><input type="checkbox" id="notice-enabled" style="width:auto"> Show banner on the website</label>
-        <label>Message</label><textarea id="notice-text" placeholder="e.g. Registration for Leadership Camp is open until 30 October!"></textarea>
-        <label>Link (optional)</label><input id="notice-link" placeholder="https://forms.google.com/...  or  programs.html">
-        <label>Link text (optional)</label><input id="notice-linktext" placeholder="Register now">
-        <label>Color</label>
-        <select id="notice-style"><option value="">Blue / Purple (default)</option><option value="ok">Green (good news)</option><option value="warn">Yellow (important)</option><option value="alert">Red (urgent)</option></select>
-        <p class="hint">The banner appears at the top of every page. Visitors can close it; it comes back when you change the message. Click "Save Changes" to publish.</p>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--ink);font-size:.9rem;"><input type="checkbox" id="notice-enabled" style="width:auto"> Show the scrolling notice bar on the website</label>
+        <label>Notices (each one scrolls across the bar)</label>
+        <div id="notice-items"></div>
+        <button type="button" class="btn-add" onclick="addNoticeItem()">+ Add notice</button>
+        <label>Bar color</label>
+        <select id="notice-style"><option value="">Navy (default)</option><option value="ok">Green (good news)</option><option value="warn">Amber (important)</option><option value="alert">Red (urgent)</option></select>
+        <label>Scroll speed</label>
+        <select id="notice-speed"><option value="35">Slow</option><option value="60">Normal</option><option value="95">Fast</option></select>
+        <p class="hint">A bell + running text bar appears at the top of every page, like a news ticker. Hovering pauses it. Add as many notices as you like; a link is optional (a full https:// link or a page like programs.html). Click "Save Changes" to publish.</p>
       </fieldset>
     </div>
 
@@ -364,9 +366,9 @@ function fillForm(d){
   document.getElementById('quiz-intro-lead').value = qi.lead || '';
   const nt = d.notice || {};
   document.getElementById('notice-enabled').checked = !!nt.enabled;
-  document.getElementById('notice-text').value = nt.text || '';
-  document.getElementById('notice-link').value = nt.link || '';
-  document.getElementById('notice-linktext').value = nt.linkText || '';
+  noticeItems = (Array.isArray(nt.items) && nt.items.length) ? nt.items.map(x=>({text:x.text||'',link:x.link||''})) : (nt.text ? [{text:nt.text, link:nt.link||''}] : []);
+  renderNoticeItems();
+  document.getElementById('notice-speed').value = String([35,60,95].includes(Number(nt.speed)) ? Number(nt.speed) : 60);
   document.getElementById('notice-style').value = nt.style || '';
   const vpr = d.verifyPromo || {};
   document.getElementById('vp-intro-title').value = vpr.title || '';
@@ -726,6 +728,18 @@ async function issueCerts(){
 }
 document.addEventListener('DOMContentLoaded', ()=>{ const d = document.getElementById('cert-date'); if(d && !d.value) d.value = new Date().toISOString().slice(0,10); });
 
+let noticeItems = [];
+function renderNoticeItems(){
+  document.getElementById('notice-items').innerHTML = noticeItems.map((n,i)=>`
+    <div class="card-item row">
+      <input value="${esc(n.text)}" placeholder="Notice text, e.g. Registration for Leadership Camp is open until 30 October!" onchange="noticeItems[${i}].text=this.value">
+      <input value="${esc(n.link)}" placeholder="Link (optional) — https://... or programs.html" onchange="noticeItems[${i}].link=this.value">
+      <button type="button" class="rm" onclick="removeNoticeItem(${i})">✕ remove</button>
+    </div>`).join('') || '<p class="hint">No notices yet — click "+ Add notice".</p>';
+}
+function addNoticeItem(){ noticeItems.push({text:'',link:''}); renderNoticeItems(); }
+function removeNoticeItem(i){ noticeItems.splice(i,1); renderNoticeItems(); }
+
 function collectGroup(name){
   const items = [...document.querySelectorAll(`[data-g="${name}"]`)];
   const byIndex = {};
@@ -744,7 +758,7 @@ function buildData(){
     quizIntro: { title: document.getElementById('quiz-intro-title').value, lead: document.getElementById('quiz-intro-lead').value },
     verifyPromo: { title: document.getElementById('vp-intro-title').value, lead: document.getElementById('vp-intro-lead').value },
     verifyIntro: { title: document.getElementById('vf-intro-title').value, lead: document.getElementById('vf-intro-lead').value },
-    notice: { enabled: document.getElementById('notice-enabled').checked, text: document.getElementById('notice-text').value, link: document.getElementById('notice-link').value, linkText: document.getElementById('notice-linktext').value, style: document.getElementById('notice-style').value },
+    notice: { enabled: document.getElementById('notice-enabled').checked, items: noticeItems.filter(x=>String(x.text||'').trim()).map(x=>({text:x.text.trim(), link:(x.link||'').trim()})), style: document.getElementById('notice-style').value, speed: Number(document.getElementById('notice-speed').value) || 60 },
     quizSectors: quizSectorsData.filter(s=>s.id && s.name),
     blog: blogData.filter(p=>p.title || p.content).map(p=>({...p, id: p.id || ('post-'+Date.now()+'-'+Math.random().toString(36).slice(2,7))})),
     join: { title: document.getElementById('join-title').value, text: document.getElementById('join-text').value },

@@ -119,7 +119,7 @@
   ],
   "verifyPromo": { "title": "Verify a Certificate", "lead": "Received a certificate from Visionary Youth Alliance? Enter its unique ID to confirm it is genuine." },
   "verifyIntro": { "title": "Verify a Certificate", "lead": "Every certificate issued by Visionary Youth Alliance carries a unique ID. Enter it below to confirm the certificate is genuine and see who it was issued to." },
-  "notice": { "enabled": false, "text": "", "link": "", "linkText": "", "style": "" },
+  "notice": { "enabled": false, "items": [ { "text": "Registration for our Leadership Development program is now open — apply today!", "link": "programs.html" }, { "text": "Test your knowledge with our new Quiz — Islamic, World & National sectors.", "link": "quiz.html" } ], "style": "", "speed": 60 },
   "quizIntro": {
     "title": "Pick a Sector & Start the Quiz",
     "lead": "Each quiz has 15 questions drawn from that sector's question bank. We won't repeat a question you've already seen until you've gone through all of them."
