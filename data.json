@@ -197,7 +197,9 @@
     "testiTitle": "What our members say",
     "testiLead": "Words from young people who are part of the VYA journey.",
     "faqTitle": "Frequently asked questions",
-    "faqLead": "Quick answers to the things people ask us most."
+    "faqLead": "Quick answers to the things people ask us most.",
+    "eventsTitle": "Upcoming events",
+    "eventsLead": "Join us at our next programs, workshops and meetups."
   },
   "testimonials": [],
   "faq": [
@@ -217,5 +219,6 @@
       "q": "Will I get a certificate?",
       "a": "Yes. Participants receive a certificate with a unique ID that anyone can check on our Verify page."
     }
-  ]
+  ],
+  "events": []
 }

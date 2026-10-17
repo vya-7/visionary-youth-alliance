@@ -341,6 +341,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+try{ (function(){ var pg=(location.pathname.split('/').pop()||'index').replace('.html','').replace(/-/g,'_')||'index'; var k='vya_pv_'+pg, FV=firebase.firestore.FieldValue; if(sessionStorage.getItem(k)) return; sessionStorage.setItem(k,'1'); var day=new Date().toISOString().slice(0,10), o={v:FV.increment(1)}; o['p_'+pg]=FV.increment(1); try{ if(!localStorage.getItem('vya_uv_'+day)){ localStorage.setItem('vya_uv_'+day,'1'); o.u=FV.increment(1); } }catch(e){} db.collection('siteStats').doc(day).set(o,{merge:true}).catch(function(){}); })(); }catch(e){}
 
 function renderNotice(d){
   try{

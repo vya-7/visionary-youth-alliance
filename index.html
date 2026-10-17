@@ -290,6 +290,20 @@ footer li a:hover{padding-left:6px;}
 .jf-wrap .btn{width:100%;margin-top:16px;border:0;cursor:pointer;background:linear-gradient(100deg,#2b6cf6,#7b2ff7) !important;color:#fff !important;}
 .jf-msg{margin-top:12px;font-size:.88rem;text-align:center;}
 .jf-msg.ok{color:#15803d;} .jf-msg.err{color:#b91c1c;}
+<style id="events-css">
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;}
+.ev{display:flex;gap:16px;background:#fff;border:1px solid #e6e9f7;border-radius:18px;padding:18px;box-shadow:var(--shadow-sm);transition:transform .3s,box-shadow .3s;}
+.ev:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);}
+.ev.past{opacity:.6;}
+.ev-date{flex:none;width:72px;height:80px;border-radius:14px;background:linear-gradient(135deg,#2b6cf6,#7b2ff7);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.ev-date b{font:700 1.6rem/1 Poppins,sans-serif;}
+.ev-date span{font-size:.62rem;letter-spacing:.06em;margin-top:4px;opacity:.9;}
+.ev-body h3{margin:0 0 4px;font-size:1.02rem;color:#0f1533;}
+.ev-body h3 em{font-style:normal;font-size:.65rem;background:#eef0fb;color:#5b6382;border-radius:20px;padding:2px 8px;vertical-align:middle;}
+.ev-meta{color:#2b6cf6;font-size:.82rem;font-weight:600;margin-bottom:6px;}
+.ev-body p{color:#4a5273;font-size:.9rem;line-height:1.6;margin:0 0 8px;white-space:pre-line;}
+.ev-link{color:#7b2ff7;font-weight:600;font-size:.88rem;text-decoration:none;}
+.ev-link:hover{text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -419,6 +433,13 @@ footer li a:hover{padding-left:6px;}
   </div>
 </section>
 
+<section id="events" style="display:none">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">Events</div><h2 id="ev-title">Upcoming events</h2><p class="lead" id="ev-lead"></p></div>
+    <div class="ev-grid" id="ev-grid"></div>
+  </div>
+</section>
+
 <section id="testimonials" style="display:none">
   <div class="wrap">
     <div class="sec-head"><div class="eyebrow">Testimonials</div><h2 id="t-title">What our members say</h2><p class="lead" id="t-lead"></p></div>
@@ -496,6 +517,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+try{ (function(){ var pg=(location.pathname.split('/').pop()||'index').replace('.html','').replace(/-/g,'_')||'index'; var k='vya_pv_'+pg, FV=firebase.firestore.FieldValue; if(sessionStorage.getItem(k)) return; sessionStorage.setItem(k,'1'); var day=new Date().toISOString().slice(0,10), o={v:FV.increment(1)}; o['p_'+pg]=FV.increment(1); try{ if(!localStorage.getItem('vya_uv_'+day)){ localStorage.setItem('vya_uv_'+day,'1'); o.u=FV.increment(1); } }catch(e){} db.collection('siteStats').doc(day).set(o,{merge:true}).catch(function(){}); })(); }catch(e){}
 
 function renderNotice(d){
   try{
@@ -531,7 +553,29 @@ function vpGo(ev){
 }
 
 function escH(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function renderEvents(d){
+  try{
+    const sc = d.sections || {};
+    const sec = document.getElementById('events'); if(!sec) return;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const parse = v => { const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v||'')); return m ? new Date(+m[1],+m[2]-1,+m[3]) : null; };
+    const all = (d.events||[]).filter(e=>e && e.title).map(e=>({e, dt: parse(e.date)}));
+    const up = all.filter(x=>!x.dt || x.dt>=today).sort((a,b)=>(a.dt||9e15)-(b.dt||9e15));
+    const past = all.filter(x=>x.dt && x.dt<today).sort((a,b)=>b.dt-a.dt).slice(0,3);
+    const list = up.concat(past.map(x=>({e:x.e, dt:x.dt, past:true})));
+    sec.style.display = list.length ? '' : 'none';
+    if(sc.eventsTitle) document.getElementById('ev-title').textContent = sc.eventsTitle;
+    document.getElementById('ev-lead').textContent = sc.eventsLead || '';
+    const mon = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    document.getElementById('ev-grid').innerHTML = list.map(x=>{
+      const e = x.e, link = String(e.link||'').trim(), okLink = /^(https?:\/\/|[\w\-\/]+\.html)/i.test(link);
+      const meta = [e.time, e.place].filter(Boolean).map(escH).join(' · ');
+      return '<div class="ev'+(x.past?' past':'')+'"><div class="ev-date">'+(x.dt?'<b>'+x.dt.getDate()+'</b><span>'+mon[x.dt.getMonth()]+' '+x.dt.getFullYear()+'</span>':'<b>TBA</b><span>Date soon</span>')+'</div><div class="ev-body"><h3>'+escH(e.title)+(x.past?' <em>Past</em>':'')+'</h3>'+(meta?'<div class="ev-meta">'+meta+'</div>':'')+(e.text?'<p>'+escH(e.text)+'</p>':'')+(okLink && !x.past?'<a class="ev-link" href="'+escH(link)+'">Register / Details →</a>':'')+'</div></div>';
+    }).join('');
+  }catch(err){ console.warn(err); }
+}
 function renderExtras(d){
+  renderEvents(d);
   try{
     const sc = d.sections || {};
     const T = (d.testimonials||[]).filter(t=>t && t.quote);
