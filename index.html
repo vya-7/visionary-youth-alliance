@@ -257,6 +257,40 @@ footer li a:hover{padding-left:6px;}
 .vp-form input:focus{outline:2px solid #7b6bff;border-color:transparent;}
 .vp-form .btn{border:none;cursor:pointer;font-family:inherit;}
 </style>
+<style id="extras-css">
+.sec-head{text-align:center;max-width:640px;margin:0 auto 34px;}
+.sec-head .lead{margin:0 auto;}
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.testi{background:#fff;border:1px solid #e6e9f7;border-radius:18px;padding:26px 24px;box-shadow:var(--shadow-sm);position:relative;display:flex;flex-direction:column;gap:16px;transition:transform .3s,box-shadow .3s;}
+.testi:hover{transform:translateY(-5px);box-shadow:var(--shadow-md);}
+.testi::before{content:"\201C";position:absolute;top:6px;right:18px;font:700 74px/1 Georgia,serif;color:#7b2ff7;opacity:.14;}
+.testi q{quotes:none;color:#2a3158;font-size:.96rem;line-height:1.7;}
+.testi .who{display:flex;align-items:center;gap:12px;margin-top:auto;}
+.testi .av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#2b6cf6,#7b2ff7);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:Poppins,sans-serif;overflow:hidden;flex:none;}
+.testi .av img{width:100%;height:100%;object-fit:cover;}
+.testi .who b{display:block;color:#0f1533;font-size:.95rem;}
+.testi .who span{color:#5b6382;font-size:.8rem;}
+.faq-list{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+.faq-list details{background:#fff;border:1px solid #e6e9f7;border-radius:14px;box-shadow:var(--shadow-sm);overflow:hidden;}
+.faq-list summary{cursor:pointer;list-style:none;padding:17px 52px 17px 20px;font-weight:600;color:#0f1533;position:relative;font-family:Poppins,sans-serif;font-size:.97rem;}
+.faq-list summary::-webkit-details-marker{display:none;}
+.faq-list summary::after{content:"+";position:absolute;right:18px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#2b6cf6,#7b2ff7);color:#fff;text-align:center;line-height:26px;font-size:1.1rem;}
+.faq-list details[open] summary::after{content:"\2212";}
+.faq-list details[open]{border-color:#cfd8ff;}
+.faq-list .ans{padding:0 20px 18px;color:#4a5273;line-height:1.7;font-size:.94rem;white-space:pre-line;}
+.jf-wrap{display:none;max-width:560px;margin:26px auto 0;text-align:left;background:#fff;color:#0f1533;border-radius:18px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.25);position:relative;z-index:1;}
+.jf-wrap.open{display:block;}
+.jf-wrap label{display:block;font-size:.8rem;font-weight:600;margin:12px 0 5px;color:#2a3158;}
+.jf-wrap input,.jf-wrap select,.jf-wrap textarea{width:100%;padding:11px 13px;border:1px solid #d9def2;border-radius:10px;font:inherit;font-size:.92rem;color:#0f1533;background:#f8f9ff;}
+.jf-wrap textarea{min-height:96px;resize:vertical;}
+.jf-wrap input:focus,.jf-wrap select:focus,.jf-wrap textarea:focus{outline:2px solid #2b6cf6;background:#fff;}
+.jf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:560px){.jf-row{grid-template-columns:1fr;}}
+.jf-hp{position:absolute;left:-9999px;opacity:0;height:0;width:0;}
+.jf-wrap .btn{width:100%;margin-top:16px;border:0;cursor:pointer;background:linear-gradient(100deg,#2b6cf6,#7b2ff7) !important;color:#fff !important;}
+.jf-msg{margin-top:12px;font-size:.88rem;text-align:center;}
+.jf-msg.ok{color:#15803d;} .jf-msg.err{color:#b91c1c;}
+</style>
 </head>
 <body>
 <div id="splash">
@@ -385,11 +419,40 @@ footer li a:hover{padding-left:6px;}
   </div>
 </section>
 
+<section id="testimonials" style="display:none">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">Testimonials</div><h2 id="t-title">What our members say</h2><p class="lead" id="t-lead"></p></div>
+    <div class="testi-grid" id="t-grid"></div>
+  </div>
+</section>
+
+<section id="faq" style="display:none">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">FAQ</div><h2 id="f-title">Frequently asked questions</h2><p class="lead" id="f-lead"></p></div>
+    <div class="faq-list" id="f-list"></div>
+  </div>
+</section>
+
 <section id="join">
   <div class="join">
     <h2 id="j-title"></h2>
     <p id="j-text"></p>
-    <a href="#" class="btn btn-primary">Apply to Join</a>
+    <button type="button" class="btn btn-primary" id="jf-toggle" style="border:0;cursor:pointer">Apply to Join</button>
+    <form class="jf-wrap" id="jf" novalidate>
+      <label>I want to</label>
+      <select id="jf-type"><option value="join">Join VYA</option><option value="question">Ask a question / contact us</option></select>
+      <div class="jf-row">
+        <div><label>Full name *</label><input id="jf-name" maxlength="100" autocomplete="name"></div>
+        <div><label>Phone / WhatsApp *</label><input id="jf-phone" maxlength="40" autocomplete="tel"></div>
+      </div>
+      <label>Email</label><input id="jf-email" type="email" maxlength="120" autocomplete="email">
+      <label>Interested in</label><input id="jf-interest" maxlength="120" list="jf-programs" placeholder="e.g. Leadership Development">
+      <datalist id="jf-programs"></datalist>
+      <label>Message</label><textarea id="jf-message" maxlength="1000" placeholder="Tell us a little about yourself or your question"></textarea>
+      <input class="jf-hp" id="jf-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="btn btn-primary" id="jf-send">Send</button>
+      <div class="jf-msg" id="jf-msg"></div>
+    </form>
   </div>
 </section>
 
@@ -466,6 +529,67 @@ function vpGo(ev){
   window.location.href = 'verify.html' + (v ? '?id=' + encodeURIComponent(v) : '');
   return false;
 }
+
+function escH(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function renderExtras(d){
+  try{
+    const sc = d.sections || {};
+    const T = (d.testimonials||[]).filter(t=>t && t.quote);
+    const tsec = document.getElementById('testimonials');
+    if(tsec){
+      tsec.style.display = T.length ? '' : 'none';
+      if(sc.testiTitle) document.getElementById('t-title').textContent = sc.testiTitle;
+      document.getElementById('t-lead').textContent = sc.testiLead || '';
+      document.getElementById('t-grid').innerHTML = T.map(t=>{
+        const ph = String(t.photo||'').trim();
+        const okPh = /^(https?:\/\/|data:image\/)/i.test(ph);
+        const ini = escH((t.name||'?').trim().charAt(0).toUpperCase());
+        return '<div class="testi"><q>'+escH(t.quote)+'</q><div class="who"><div class="av">'+(okPh?'<img src="'+escH(ph)+'" alt="">':ini)+'</div><div><b>'+escH(t.name)+'</b><span>'+escH(t.role)+'</span></div></div></div>';
+      }).join('');
+    }
+    const F = (d.faq||[]).filter(f=>f && f.q);
+    const fsec = document.getElementById('faq');
+    if(fsec){
+      fsec.style.display = F.length ? '' : 'none';
+      if(sc.faqTitle) document.getElementById('f-title').textContent = sc.faqTitle;
+      document.getElementById('f-lead').textContent = sc.faqLead || '';
+      document.getElementById('f-list').innerHTML = F.map(f=>'<details><summary>'+escH(f.q)+'</summary><div class="ans">'+escH(f.a)+'</div></details>').join('');
+    }
+    const dl = document.getElementById('jf-programs');
+    if(dl) dl.innerHTML = ((d.programs&&d.programs.pillars)||[]).map(p=>'<option value="'+escH(p.title)+'">').join('');
+  }catch(e){ console.warn(e); }
+}
+(function(){
+  const form = document.getElementById('jf'), tg = document.getElementById('jf-toggle');
+  if(!form || !tg) return;
+  function open(){ form.classList.add('open'); }
+  tg.addEventListener('click', ()=>{ form.classList.toggle('open'); });
+  document.querySelectorAll('a[href="#join"]').forEach(a=>a.addEventListener('click', open));
+  if(location.hash === '#join') open();
+  const msg = document.getElementById('jf-msg');
+  form.addEventListener('submit', async ev=>{
+    ev.preventDefault();
+    const v = id => document.getElementById(id).value.trim();
+    const set = (t,c)=>{ msg.textContent=t; msg.className='jf-msg '+c; };
+    if(v('jf-hp')) return;
+    if(!v('jf-name') || !v('jf-phone')){ set('Please enter your name and phone / WhatsApp number.','err'); return; }
+    if(v('jf-email') && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('jf-email'))){ set('That email address does not look right.','err'); return; }
+    let last = 0; try{ last = Number(localStorage.getItem('vya_jf_last')||0); }catch(e){}
+    if(Date.now()-last < 60000){ set('Please wait a minute before sending another message.','err'); return; }
+    const btn = document.getElementById('jf-send'); btn.disabled = true; set('Sending…','');
+    try{
+      await db.collection('joinRequests').add({
+        type: document.getElementById('jf-type').value === 'question' ? 'question' : 'join',
+        name: v('jf-name').slice(0,100), phone: v('jf-phone').slice(0,40), email: v('jf-email').slice(0,120),
+        interest: v('jf-interest').slice(0,120), message: v('jf-message').slice(0,1000),
+        status: 'new', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      try{ localStorage.setItem('vya_jf_last', String(Date.now())); }catch(e){}
+      form.reset(); set('Thank you! We have received your message and will contact you soon.','ok');
+    }catch(e){ set('Sorry, could not send right now. Please try again later.','err'); }
+    btn.disabled = false;
+  });
+})();
 function renderSite(d){
   renderNotice(d);
   try{
@@ -475,7 +599,7 @@ function renderSite(d){
   }catch(e){}
   d.hero = d.hero || {}; d.stats = d.stats || []; d.about = d.about || {cards:[]}; d.about.cards = d.about.cards || [];
   d.programs = d.programs || {pillars:[]}; d.programs.pillars = d.programs.pillars || [];
-  d.team = d.team || []; d.blog = d.blog || []; d.join = d.join || {}; d.contact = d.contact || {}; d.social = d.social || {};
+  d.team = d.team || []; d.blog = d.blog || []; d.testimonials = d.testimonials || []; d.faq = d.faq || []; d.sections = d.sections || {}; renderExtras(d); d.join = d.join || {}; d.contact = d.contact || {}; d.social = d.social || {};
   document.getElementById('h-tag').textContent = d.hero.tag;
   document.getElementById('h-title').textContent = d.hero.title;
   document.getElementById('h-sub').textContent = d.hero.subtitle;

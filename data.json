@@ -117,17 +117,52 @@
       "role": "General Secretary"
     }
   ],
-  "verifyPromo": { "title": "Verify a Certificate", "lead": "Received a certificate from Visionary Youth Alliance? Enter its unique ID to confirm it is genuine." },
-  "verifyIntro": { "title": "Verify a Certificate", "lead": "Every certificate issued by Visionary Youth Alliance carries a unique ID. Enter it below to confirm the certificate is genuine and see who it was issued to." },
-  "notice": { "enabled": false, "items": [ { "text": "Registration for our Leadership Development program is now open — apply today!", "link": "programs.html" }, { "text": "Test your knowledge with our new Quiz — Islamic, World & National sectors.", "link": "quiz.html" } ], "style": "", "speed": 60 },
+  "verifyPromo": {
+    "title": "Verify a Certificate",
+    "lead": "Received a certificate from Visionary Youth Alliance? Enter its unique ID to confirm it is genuine."
+  },
+  "verifyIntro": {
+    "title": "Verify a Certificate",
+    "lead": "Every certificate issued by Visionary Youth Alliance carries a unique ID. Enter it below to confirm the certificate is genuine and see who it was issued to."
+  },
+  "notice": {
+    "enabled": false,
+    "items": [
+      {
+        "text": "Registration for our Leadership Development program is now open — apply today!",
+        "link": "programs.html"
+      },
+      {
+        "text": "Test your knowledge with our new Quiz — Islamic, World & National sectors.",
+        "link": "quiz.html"
+      }
+    ],
+    "style": "",
+    "speed": 60
+  },
   "quizIntro": {
     "title": "Pick a Sector & Start the Quiz",
     "lead": "Each quiz has 15 questions drawn from that sector's question bank. We won't repeat a question you've already seen until you've gone through all of them."
   },
   "quizSectors": [
-    { "id": "islamic", "icon": "🕌", "name": "Islamic", "description": "Questions on Islamic history, values and general knowledge." },
-    { "id": "world", "icon": "🌍", "name": "World", "description": "General knowledge questions about the world around us." },
-    { "id": "national", "icon": "🇧🇩", "name": "National", "description": "Questions about Bangladesh — history, culture and current affairs." }
+    {
+      "id": "islamic",
+      "icon": "🕌",
+      "name": "Islamic",
+      "description": "Questions on Islamic history, values and general knowledge."
+    },
+    {
+      "id": "world",
+      "icon": "🌍",
+      "name": "World",
+      "description": "General knowledge questions about the world around us."
+    },
+    {
+      "id": "national",
+      "icon": "🇧🇩",
+      "name": "National",
+      "description": "Questions about Bangladesh — history, culture and current affairs."
+    }
   ],
   "blog": [
     {
@@ -138,7 +173,9 @@
       "date": "2026-01-01",
       "excerpt": "A short introduction to why we started VYA and what we're building together.",
       "content": "We started Visionary Youth Alliance because we believe young people in Bangladesh deserve real opportunities to lead, not just participate.\n\nThis blog will be where we share updates, lessons learned, and stories from our programs. Stay tuned for more.",
-      "tags": ["announcement"]
+      "tags": [
+        "announcement"
+      ]
     }
   ],
   "join": {
@@ -155,5 +192,30 @@
     "instagram": "",
     "whatsapp": "",
     "youtube": ""
-  }
+  },
+  "sections": {
+    "testiTitle": "What our members say",
+    "testiLead": "Words from young people who are part of the VYA journey.",
+    "faqTitle": "Frequently asked questions",
+    "faqLead": "Quick answers to the things people ask us most."
+  },
+  "testimonials": [],
+  "faq": [
+    {
+      "q": "Who can join Visionary Youth Alliance?",
+      "a": "Any young person in Bangladesh who wants to learn, lead and serve. Students of schools, colleges and universities are all welcome."
+    },
+    {
+      "q": "Is there any membership fee?",
+      "a": "No. Joining VYA and our core programs is free."
+    },
+    {
+      "q": "How do I apply?",
+      "a": "Press 'Apply to Join' at the bottom of the home page, fill in the short form, and our team will contact you."
+    },
+    {
+      "q": "Will I get a certificate?",
+      "a": "Yes. Participants receive a certificate with a unique ID that anyone can check on our Verify page."
+    }
+  ]
 }

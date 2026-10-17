@@ -63,7 +63,10 @@
   <div class="navitem" data-view="certs">🎓 Certificates</div>
   <div class="navgroup">Notice</div>
   <div class="navitem" data-view="notice">📢 Notice Banner</div>
+  <div class="navitem" data-view="testi">💬 Testimonials</div>
+  <div class="navitem" data-view="faq">❓ FAQ</div>
   <div class="navitem" data-view="join">🤝 Join Section</div>
+  <div class="navitem" data-view="apps">📨 Applications</div>
   <div class="navgroup">Settings</div>
   <div class="navitem" data-view="contact">📬 Contact Info</div>
   <div class="navgroup"><a href="index.html">← Back to Site</a></div>
@@ -240,6 +243,49 @@ Correct: A"></textarea>
       </fieldset>
     </div>
 
+    <div class="view" id="v-testi">
+      <fieldset>
+        <legend>Testimonials — section text</legend>
+        <label>Heading</label><input id="testi-title" placeholder="What our members say">
+        <label>Intro text</label><textarea id="testi-lead"></textarea>
+      </fieldset>
+      <fieldset>
+        <legend>Testimonials</legend>
+        <div id="testi-items"></div>
+        <button type="button" class="btn-add" onclick="addTesti()">+ Add testimonial</button>
+        <p class="hint">The section appears on the home page only when at least one testimonial exists. Photo is optional (a full https:// image link); otherwise the first letter of the name is shown. Press 💾 Save Changes to publish.</p>
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-faq">
+      <fieldset>
+        <legend>FAQ — section text</legend>
+        <label>Heading</label><input id="faq-title" placeholder="Frequently asked questions">
+        <label>Intro text</label><textarea id="faq-lead"></textarea>
+      </fieldset>
+      <fieldset>
+        <legend>Questions &amp; Answers</legend>
+        <div id="faq-items"></div>
+        <button type="button" class="btn-add" onclick="addFaq()">+ Add question</button>
+        <p class="hint">Visitors click a question to see the answer. Hidden on the home page if empty. Press 💾 Save Changes to publish.</p>
+      </fieldset>
+    </div>
+
+    <div class="view" id="v-apps">
+      <fieldset>
+        <legend>Applications &amp; Messages</legend>
+        <input id="app-search" placeholder="Search name, phone, email, message…" oninput="renderApps()">
+        <select id="app-filter" onchange="renderApps()" style="margin-top:8px"><option value="all">All</option><option value="new">New only</option><option value="done">Handled</option><option value="join">Join requests</option><option value="question">Questions</option></select>
+        <p class="hint" id="app-count"></p>
+        <div id="app-list"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn-add" style="width:auto" onclick="loadApps()">🔄 Refresh</button>
+          <button type="button" class="btn-add" style="width:auto" onclick="exportApps()">⬇️ Export CSV</button>
+        </div>
+        <p class="hint">Everything people send from the home page Join form appears here instantly — no need to press Save Changes.</p>
+      </fieldset>
+    </div>
+
     <div class="view" id="v-join">
       <fieldset>
         <legend>Join section</legend>
@@ -380,6 +426,15 @@ function fillForm(d){
   loadQuizCounts();
   loadCerts();
   renderBlog(d.blog||[]);
+  { const sc = d.sections || {};
+    document.getElementById('testi-title').value = sc.testiTitle || '';
+    document.getElementById('testi-lead').value = sc.testiLead || '';
+    document.getElementById('faq-title').value = sc.faqTitle || '';
+    document.getElementById('faq-lead').value = sc.faqLead || '';
+    testiData = (d.testimonials||[]).map(t=>({name:t.name||'',role:t.role||'',quote:t.quote||'',photo:t.photo||''}));
+    faqData = (d.faq||[]).map(f=>({q:f.q||'',a:f.a||''}));
+    renderTesti(); renderFaq(); loadApps();
+  }
   document.getElementById('join-title').value = d.join.title;
   document.getElementById('join-text').value = d.join.text;
   document.getElementById('contact-email').value = d.contact.email;
@@ -728,6 +783,79 @@ async function issueCerts(){
 }
 document.addEventListener('DOMContentLoaded', ()=>{ const d = document.getElementById('cert-date'); if(d && !d.value) d.value = new Date().toISOString().slice(0,10); });
 
+
+let testiData = [], faqData = [], appsData = [], appsShown = [];
+function renderTesti(){
+  document.getElementById('testi-items').innerHTML = testiData.map((t,i)=>`
+    <div class="card-item">
+      <input value="${esc(t.name)}" placeholder="Name" onchange="testiData[${i}].name=this.value">
+      <input value="${esc(t.role)}" placeholder="Role / batch, e.g. Member, Dhaka College" onchange="testiData[${i}].role=this.value">
+      <textarea placeholder="Their opinion / quote" onchange="testiData[${i}].quote=this.value">${esc(t.quote)}</textarea>
+      <input value="${esc(t.photo)}" placeholder="Photo link (optional) — https://..." onchange="testiData[${i}].photo=this.value">
+      <button type="button" class="rm" onclick="removeTesti(${i})">✕ remove</button>
+    </div>`).join('') || '<p class="hint">No testimonials yet — click "+ Add testimonial".</p>';
+}
+function addTesti(){ testiData.push({name:'',role:'',quote:'',photo:''}); renderTesti(); }
+function removeTesti(i){ testiData.splice(i,1); renderTesti(); }
+function renderFaq(){
+  document.getElementById('faq-items').innerHTML = faqData.map((f,i)=>`
+    <div class="card-item">
+      <input value="${esc(f.q)}" placeholder="Question" onchange="faqData[${i}].q=this.value">
+      <textarea placeholder="Answer" onchange="faqData[${i}].a=this.value">${esc(f.a)}</textarea>
+      <button type="button" class="rm" onclick="removeFaq(${i})">✕ remove</button>
+    </div>`).join('') || '<p class="hint">No questions yet — click "+ Add question".</p>';
+}
+function addFaq(){ faqData.push({q:'',a:''}); renderFaq(); }
+function removeFaq(i){ faqData.splice(i,1); renderFaq(); }
+
+async function loadApps(){
+  const c = document.getElementById('app-count'); if(!c) return;
+  c.textContent = 'Loading…';
+  try{
+    const snap = await db.collection('joinRequests').orderBy('createdAt','desc').limit(1000).get();
+    appsData = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+    renderApps();
+  }catch(e){ c.textContent = 'Could not load: ' + e.message; }
+}
+function renderApps(){
+  const q = (document.getElementById('app-search').value||'').trim().toLowerCase();
+  const f = document.getElementById('app-filter').value;
+  appsShown = appsData.filter(a=>{
+    if(f==='new' && a.status==='done') return false;
+    if(f==='done' && a.status!=='done') return false;
+    if((f==='join'||f==='question') && a.type!==f) return false;
+    return !q || [a.name,a.phone,a.email,a.interest,a.message].join(' ').toLowerCase().includes(q);
+  });
+  const nNew = appsData.filter(a=>a.status!=='done').length;
+  document.getElementById('app-count').textContent = appsData.length + ' total · ' + nNew + ' new' + (appsShown.length!==appsData.length ? ' — showing ' + appsShown.length : '');
+  document.getElementById('app-list').innerHTML = appsShown.map((a,i)=>{
+    const dt = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate().toLocaleString() : '';
+    return `<div class="card-item" style="${a.status==='done'?'opacity:.65':''}">
+      <div><b>${esc(a.name)}</b> <span class="hint">· ${a.type==='question'?'❓ Question':'🤝 Join request'}${a.status==='done'?' · ✅ handled':' · 🆕 new'}</span></div>
+      <div class="hint">📞 ${esc(a.phone)}${a.email?' · ✉️ '+esc(a.email):''}${a.interest?' · 🎯 '+esc(a.interest):''}</div>
+      ${a.message?`<div style="margin-top:6px;white-space:pre-wrap">${esc(a.message)}</div>`:''}
+      <div class="hint">${esc(dt)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px" onclick="appAction('toggle',${i})">${a.status==='done'?'↩️ Mark new':'✅ Mark handled'}</button>
+        <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px;color:#f87171;border-color:#f87171" onclick="appAction('delete',${i})">🗑 Delete</button>
+      </div></div>`;
+  }).join('') || '<p class="hint">No applications yet.</p>';
+}
+async function appAction(kind,i){
+  const a = appsShown[i]; if(!a) return;
+  try{
+    if(kind==='toggle'){ await db.collection('joinRequests').doc(a.id).update({status: a.status==='done'?'new':'done'}); }
+    else if(kind==='delete'){ if(!confirm('Delete the message from '+a.name+'?')) return; await db.collection('joinRequests').doc(a.id).delete(); }
+    await loadApps();
+  }catch(e){ alert('Failed: '+e.message); }
+}
+function exportApps(){
+  const cell = v => '"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const rows = [['Date','Type','Status','Name','Phone','Email','Interest','Message']].concat(appsData.map(a=>[a.createdAt&&a.createdAt.toDate?a.createdAt.toDate().toISOString():'',a.type,a.status,a.name,a.phone,a.email,a.interest,a.message]));
+  const blob = new Blob(['\ufeff'+rows.map(r=>r.map(cell).join(',')).join('\n')],{type:'text/csv;charset=utf-8'});
+  const u = URL.createObjectURL(blob), l = document.createElement('a'); l.href=u; l.download='vya-applications.csv'; l.click(); URL.revokeObjectURL(u);
+}
+
 let noticeItems = [];
 function renderNoticeItems(){
   document.getElementById('notice-items').innerHTML = noticeItems.map((n,i)=>`
@@ -761,6 +889,9 @@ function buildData(){
     notice: { enabled: document.getElementById('notice-enabled').checked, items: noticeItems.filter(x=>String(x.text||'').trim()).map(x=>({text:x.text.trim(), link:(x.link||'').trim()})), style: document.getElementById('notice-style').value, speed: Number(document.getElementById('notice-speed').value) || 60 },
     quizSectors: quizSectorsData.filter(s=>s.id && s.name),
     blog: blogData.filter(p=>p.title || p.content).map(p=>({...p, id: p.id || ('post-'+Date.now()+'-'+Math.random().toString(36).slice(2,7))})),
+    sections: { testiTitle: document.getElementById('testi-title').value, testiLead: document.getElementById('testi-lead').value, faqTitle: document.getElementById('faq-title').value, faqLead: document.getElementById('faq-lead').value },
+    testimonials: testiData.filter(t=>String(t.quote||'').trim()).map(t=>({name:t.name.trim(),role:t.role.trim(),quote:t.quote.trim(),photo:t.photo.trim()})),
+    faq: faqData.filter(f=>String(f.q||'').trim()).map(f=>({q:f.q.trim(),a:f.a.trim()})),
     join: { title: document.getElementById('join-title').value, text: document.getElementById('join-text').value },
     contact: { email: document.getElementById('contact-email').value, phone: document.getElementById('contact-phone').value, address: document.getElementById('contact-address').value },
     social: { facebook: document.getElementById('social-facebook').value, instagram: document.getElementById('social-instagram').value, whatsapp: document.getElementById('social-whatsapp').value, youtube: document.getElementById('social-youtube').value }
