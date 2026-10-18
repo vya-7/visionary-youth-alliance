@@ -220,5 +220,61 @@
       "a": "Yes. Participants receive a certificate with a unique ID that anyone can check on our Verify page."
     }
   ],
-  "events": []
+  "events": [],
+  "daily": {
+    "enabled": true,
+    "title": "আজকের ভাবনা",
+    "quotes": [
+      {
+        "text": "A vision without action is just a dream; action without vision is just noise. Be both.",
+        "by": "VYA"
+      },
+      {
+        "text": "Leadership begins the day you decide to serve someone other than yourself.",
+        "by": "VYA"
+      },
+      {
+        "text": "Small steps, taken together by many young hands, change a nation.",
+        "by": "VYA"
+      },
+      {
+        "text": "Faith is the bird that feels the light when the dawn is still dark.",
+        "by": "Rabindranath Tagore"
+      },
+      {
+        "text": "Do not wait for permission to make a difference in your community.",
+        "by": "VYA"
+      },
+      {
+        "text": "Your age is not a limit — it is your launchpad.",
+        "by": "VYA"
+      },
+      {
+        "text": "It always seems impossible until it is done.",
+        "by": "Nelson Mandela"
+      },
+      {
+        "text": "The strongest teams are built on trust, not titles.",
+        "by": "VYA"
+      },
+      {
+        "text": "Learn something new today, teach someone tomorrow.",
+        "by": "VYA"
+      },
+      {
+        "text": "Be the reason someone in your neighbourhood believes in tomorrow.",
+        "by": "VYA"
+      }
+    ]
+  },
+  "spotlight": {
+    "enabled": false,
+    "month": "October 2026",
+    "name": "",
+    "role": "",
+    "photo": "",
+    "story": "",
+    "quote": "",
+    "achievements": []
+  }
 }

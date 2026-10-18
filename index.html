@@ -349,6 +349,64 @@ function vyaFooter(d){
   }catch(err){ console.warn(err); }
 }
 </script>
+<style id="menu-css">
+.menu-btn{padding:10px !important;border-radius:10px;}
+.menu-btn:hover{background:rgba(255,255,255,.08);}
+.menu-btn span{transform-origin:center;}
+.menu-btn.active span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.menu-btn.active span:nth-child(2){opacity:0;}
+.menu-btn.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+#menu-backdrop{position:fixed;inset:0;background:rgba(4,8,24,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40;}
+#menu-backdrop.show{opacity:1;pointer-events:auto;}
+html.menu-open{overflow:hidden;}
+@media(min-width:760px){
+  .navlinks{gap:4px !important;align-items:center;}
+  .navlinks a{padding:8px 14px !important;border-radius:999px;transition:background .2s,color .2s,filter .2s;}
+  .navlinks a::after{display:none !important;}
+  .navlinks a:hover{background:rgba(255,255,255,.09);color:#fff;}
+  .navlinks a.is-current{background:rgba(255,255,255,.13);color:#fff;}
+  .navlinks a[href$="#join"]{margin-left:8px;background:linear-gradient(100deg,#2b6cf6,#7b2ff7);color:#fff;font-weight:600;box-shadow:0 6px 18px rgba(43,60,160,.45);}
+  .navlinks a[href$="#join"]:hover{filter:brightness(1.12);}
+}
+@media(max-width:759px){
+  .mobile-menu{padding:10px 14px 18px !important;border-radius:0 0 22px 22px;max-height:calc(100vh - 72px);overflow-y:auto;}
+  .mobile-menu.open{animation:mmIn .28s cubic-bezier(.22,.7,.2,1);}
+  @keyframes mmIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:none;}}
+  @keyframes mmItem{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:none;}}
+  .mobile-menu.open a{animation:mmItem .35s both;}
+  .mobile-menu.open a:nth-child(2){animation-delay:.03s}.mobile-menu.open a:nth-child(3){animation-delay:.06s}.mobile-menu.open a:nth-child(4){animation-delay:.09s}.mobile-menu.open a:nth-child(5){animation-delay:.12s}.mobile-menu.open a:nth-child(6){animation-delay:.15s}.mobile-menu.open a:nth-child(7){animation-delay:.18s}.mobile-menu.open a:nth-child(8){animation-delay:.21s}
+  .mobile-menu a{padding:11px 10px !important;border-radius:14px;border-bottom:0 !important;font-weight:500;font-size:1rem !important;color:#d6dcf7;transition:background .2s;}
+  .mobile-menu a:hover,.mobile-menu a:active{background:rgba(255,255,255,.07);}
+  .mobile-menu a.is-current{background:linear-gradient(100deg,rgba(43,108,246,.25),rgba(123,47,247,.25));color:#fff;}
+  .mobile-menu a[href$="#join"]{margin-top:10px;justify-content:center;background:linear-gradient(100deg,#2b6cf6,#7b2ff7);color:#fff;font-weight:600;box-shadow:0 10px 24px rgba(43,60,160,.4);}
+  .mobile-menu a[href$="#join"]::before{background-color:rgba(255,255,255,.2);}
+}
+</style>
+<style id="vision-css">
+#daily{padding-top:40px;padding-bottom:10px;}
+.dv-card{max-width:860px;margin:0 auto;border-radius:26px;padding:42px 34px 34px;text-align:center;position:relative;overflow:hidden;color:#fff;background:radial-gradient(circle at 15% 0%,rgba(110,168,255,.28),transparent 55%),radial-gradient(circle at 90% 100%,rgba(185,140,255,.3),transparent 55%),linear-gradient(135deg,#0b1330,#1a2a78 60%,#4b1fa8);box-shadow:var(--shadow-lg);}
+.dv-card::before{content:"\201C";position:absolute;left:22px;top:-6px;font:700 120px/1 Georgia,serif;color:#fff;opacity:.1;}
+.dv-label{display:inline-flex;align-items:center;gap:8px;font:600 .8rem Poppins,sans-serif;letter-spacing:.08em;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 16px;}
+.dv-card blockquote{margin:20px auto 14px;max-width:680px;font:600 clamp(1.15rem,2.6vw,1.65rem)/1.5 Poppins,sans-serif;color:#fff;position:relative;}
+.dv-by{color:#b9c2ee;font-size:.92rem;}
+.dv-foot{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:22px;font-size:.78rem;color:#9aa7e0;}
+.dv-foot a,.dv-foot button{font:600 .8rem Inter,sans-serif;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:8px 16px;cursor:pointer;text-decoration:none;}
+.dv-foot a:hover,.dv-foot button:hover{background:rgba(255,255,255,.22);}
+.sp-card{max-width:900px;margin:0 auto;display:grid;grid-template-columns:240px 1fr;gap:0;background:#fff;border:1px solid #e6e9f7;border-radius:26px;overflow:hidden;box-shadow:var(--shadow-md);}
+.sp-photo{background:linear-gradient(160deg,#2b6cf6,#7b2ff7);display:flex;align-items:center;justify-content:center;min-height:240px;position:relative;}
+.sp-photo img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.sp-photo b{font:700 5rem/1 Poppins,sans-serif;color:#fff;opacity:.95;}
+.sp-photo .crown{position:absolute;top:14px;left:14px;font-size:1.6rem;z-index:2;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3));}
+.sp-body{padding:30px 32px;}
+.sp-badge{display:inline-block;font:600 .72rem Poppins,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#7b2ff7;background:#f1eaff;border-radius:999px;padding:5px 12px;}
+.sp-body h3{margin:12px 0 2px;font-size:1.6rem;color:#0f1533;}
+.sp-role{color:#2b6cf6;font-weight:600;font-size:.92rem;margin-bottom:12px;}
+.sp-body p{color:#4a5273;line-height:1.75;font-size:.95rem;white-space:pre-line;margin:0 0 14px;}
+.sp-quote{border-left:3px solid #7b2ff7;padding:2px 0 2px 14px;color:#2a3158;font-style:italic;margin:0 0 14px;}
+.sp-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.sp-chips span{background:#eef3ff;color:#2b4fc4;font-size:.78rem;font-weight:600;border-radius:999px;padding:6px 12px;}
+@media(max-width:720px){.sp-card{grid-template-columns:1fr;}.sp-photo{min-height:200px;}.sp-body{padding:24px 20px;}.dv-card{padding:36px 20px 28px;border-radius:22px;}}
+</style>
 </head>
 <body>
 <div id="splash">
@@ -408,6 +466,17 @@ function vyaFooter(d){
   </div>
   <div class="stats" id="h-stats"></div>
 </header>
+
+<section id="daily" style="display:none">
+  <div class="wrap">
+    <div class="dv-card">
+      <div class="dv-label">🌟 <span id="dv-title">আজকের ভাবনা</span> · DAILY VISION</div>
+      <blockquote id="dv-text"></blockquote>
+      <div class="dv-by" id="dv-by"></div>
+      <div class="dv-foot"><span id="dv-date"></span><a id="dv-share" href="#" target="_blank" rel="noopener">💬 Share</a><button type="button" id="dv-copy">📋 Copy</button></div>
+    </div>
+  </div>
+</section>
 
 <section id="about">
   <div class="wrap">
@@ -473,6 +542,23 @@ function vyaFooter(d){
         <input type="text" id="vp-id" placeholder="VYA-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Certificate ID">
         <button type="submit" class="btn btn-primary">Verify</button>
       </form>
+    </div>
+  </div>
+</section>
+
+<section id="spotlight" style="display:none">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">Spotlight</div><h2>Member of the Month</h2></div>
+    <div class="sp-card">
+      <div class="sp-photo" id="sp-photo"></div>
+      <div class="sp-body">
+        <span class="sp-badge" id="sp-month"></span>
+        <h3 id="sp-name"></h3>
+        <div class="sp-role" id="sp-role"></div>
+        <p id="sp-story"></p>
+        <div class="sp-quote" id="sp-quote"></div>
+        <div class="sp-chips" id="sp-chips"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -597,6 +683,57 @@ function vpGo(ev){
 }
 
 function escH(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+var VYA_DEFAULT_QUOTES = [
+  {text:'A vision without action is just a dream; action without vision is just noise. Be both.', by:'VYA'},
+  {text:'Leadership begins the day you decide to serve someone other than yourself.', by:'VYA'},
+  {text:'Small steps, taken together by many young hands, change a nation.', by:'VYA'},
+  {text:'Faith is the bird that feels the light when the dawn is still dark.', by:'Rabindranath Tagore'},
+  {text:'Do not wait for permission to make a difference in your community.', by:'VYA'},
+  {text:'Your age is not a limit — it is your launchpad.', by:'VYA'},
+  {text:'It always seems impossible until it is done.', by:'Nelson Mandela'},
+  {text:'The strongest teams are built on trust, not titles.', by:'VYA'},
+  {text:'Learn something new today, teach someone tomorrow.', by:'VYA'},
+  {text:'Be the reason someone in your neighbourhood believes in tomorrow.', by:'VYA'}
+];
+function renderVision(d){
+  try{
+    var dv = d.daily, enabled = dv ? dv.enabled !== false : true;
+    var qs = ((dv && Array.isArray(dv.quotes)) ? dv.quotes : VYA_DEFAULT_QUOTES).filter(function(q){ return q && String(q.text||'').trim(); });
+    var sec = document.getElementById('daily');
+    if(sec){
+      if(!enabled || !qs.length){ sec.style.display = 'none'; }
+      else{
+        sec.style.display = '';
+        var now = new Date(), day = Math.floor((now.getTime() - now.getTimezoneOffset()*60000) / 864e5), q = qs[((day % qs.length) + qs.length) % qs.length];
+        document.getElementById('dv-title').textContent = (dv && dv.title) || 'আজকের ভাবনা';
+        document.getElementById('dv-text').textContent = String(q.text).trim();
+        document.getElementById('dv-by').textContent = q.by ? '— ' + q.by : '';
+        var ds = ''; try{ ds = now.toLocaleDateString('bn-BD', {weekday:'long', day:'numeric', month:'long', year:'numeric'}); }catch(e){}
+        document.getElementById('dv-date').textContent = ds ? '📅 ' + ds : '';
+        var share = 'https://wa.me/?text=' + encodeURIComponent('“' + String(q.text).trim() + '”' + (q.by ? ' — ' + q.by : '') + '\n' + location.href.split('#')[0]);
+        document.getElementById('dv-share').href = share;
+        var cp = document.getElementById('dv-copy');
+        cp.onclick = function(){ var t = '“' + String(q.text).trim() + '”' + (q.by ? ' — ' + q.by : ''); try{ navigator.clipboard.writeText(t); cp.textContent = '✓ Copied'; setTimeout(function(){ cp.textContent = '📋 Copy'; }, 1600); }catch(e){} };
+      }
+    }
+    var sp = d.spotlight || {}, ssec = document.getElementById('spotlight');
+    if(ssec){
+      var on = sp.enabled && String(sp.name||'').trim();
+      ssec.style.display = on ? '' : 'none';
+      if(on){
+        document.getElementById('sp-month').textContent = sp.month || 'Member of the Month';
+        document.getElementById('sp-name').textContent = sp.name;
+        document.getElementById('sp-role').textContent = sp.role || '';
+        document.getElementById('sp-story').textContent = sp.story || '';
+        var qe = document.getElementById('sp-quote'); qe.textContent = sp.quote ? '“' + sp.quote + '”' : ''; qe.style.display = sp.quote ? '' : 'none';
+        var ph = String(sp.photo||'').trim(), okPh = /^(https?:\/\/|data:image\/)/i.test(ph);
+        var box = document.getElementById('sp-photo'); box.innerHTML = '<span class="crown">🏆</span>' + (okPh ? '' : '<b>' + escH(String(sp.name).trim().charAt(0).toUpperCase()) + '</b>');
+        if(okPh){ var im = document.createElement('img'); im.alt = sp.name; im.src = ph; box.appendChild(im); }
+        document.getElementById('sp-chips').innerHTML = (sp.achievements||[]).filter(Boolean).map(function(a){ return '<span>⭐ ' + escH(a) + '</span>'; }).join('');
+      }
+    }
+  }catch(err){ console.warn(err); }
+}
 function renderEvents(d){
   try{
     const sc = d.sections || {};
@@ -619,7 +756,7 @@ function renderEvents(d){
   }catch(err){ console.warn(err); }
 }
 function renderExtras(d){
-  renderEvents(d);
+  renderEvents(d); renderVision(d);
   try{
     const sc = d.sections || {};
     const T = (d.testimonials||[]).filter(t=>t && t.quote);
@@ -798,6 +935,19 @@ db.collection('site').doc('content').get().then(docSnap=>{
     }
   }catch(err){ console.warn(err); }
 })();
+</script>
+<script id="menu-js">
+(function(){ try{
+  var btn = document.getElementById('menuBtn') || document.querySelector('.menu-btn'), mm = document.getElementById('mobileMenu');
+  if(!btn || !mm) return;
+  var bd = document.createElement('div'); bd.id = 'menu-backdrop'; document.body.appendChild(bd);
+  function sync(){ var o = mm.classList.contains('open'); btn.classList.toggle('active', o); btn.setAttribute('aria-expanded', o ? 'true' : 'false'); bd.classList.toggle('show', o); document.documentElement.classList.toggle('menu-open', o); }
+  new MutationObserver(sync).observe(mm, {attributes:true, attributeFilter:['class']});
+  bd.addEventListener('click', function(){ mm.classList.remove('open'); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') mm.classList.remove('open'); });
+  window.addEventListener('resize', function(){ if(window.innerWidth >= 760) mm.classList.remove('open'); });
+  btn.setAttribute('aria-controls', 'mobileMenu'); sync();
+}catch(e){} })();
 </script>
 </body>
 </html>
