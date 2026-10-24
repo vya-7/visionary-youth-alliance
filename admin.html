@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>VYA Admin</title>
 <style>
-  :root{--navy:#0b1330;--navy2:#101c45;--blue:#2b6cf6;--purple:#7b2ff7;--ink:#eef1ff;--muted:#9aa3d1;--line:#232c55;--panel:#141d4a;
+  :root{--navy:#081633;--navy2:#0c2457;--blue:#0a68c8;--purple:#6a1fb0;--ink:#eef1ff;--muted:#9aa3d1;--line:#1a3166;--panel:#0f2557;
     box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{height:100%;}
@@ -18,7 +18,7 @@
   .navgroup{font-size:0.72rem;letter-spacing:.04em;color:var(--muted);margin:16px 8px 6px;text-transform:uppercase;}
   .navitem{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;font-size:0.9rem;color:#c7cdec;cursor:pointer;margin-bottom:2px;}
   .navitem:hover{background:rgba(255,255,255,0.05);}
-  .navitem.active{background:linear-gradient(100deg,rgba(43,108,246,0.25),rgba(123,47,247,0.25));color:#fff;}
+  .navitem.active{background:linear-gradient(100deg,rgba(10,104,200,0.25),rgba(106,31,176,0.25));color:#fff;}
   #main{flex:1;min-width:280px;display:flex;flex-direction:column;}
   #topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--navy);z-index:5;}
   #topbar h1{font-size:1.1rem;}
@@ -1654,7 +1654,7 @@ module.exports = QRCode;
 
 }};
 var QRCode=__r('index'),EC=__r('QRErrorCorrectLevel');
-window.vyaQR=function(text,px){for(var t=3;t<=14;t++){try{var q=new QRCode(t,EC.M);q.addData(text);q.make();var n=q.getModuleCount(),m=2,s='';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))s+='M'+(c+m)+' '+(r+m)+'h1v1h-1z';return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(n+2*m)+' '+(n+2*m)+'" width="'+(px||160)+'" height="'+(px||160)+'" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="'+s+'" fill="#0b1330"/></svg>';}catch(e){if(t==14)return '';}}};
+window.vyaQR=function(text,px){for(var t=3;t<=14;t++){try{var q=new QRCode(t,EC.M);q.addData(text);q.make();var n=q.getModuleCount(),m=2,s='';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))s+='M'+(c+m)+' '+(r+m)+'h1v1h-1z';return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(n+2*m)+' '+(n+2*m)+'" width="'+(px||160)+'" height="'+(px||160)+'" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="'+s+'" fill="#081633"/></svg>';}catch(e){if(t==14)return '';}}};
 })();</script>
 <script>
 const firebaseConfig = {
@@ -2061,7 +2061,7 @@ function renderCerts(){
   document.getElementById('cert-count').textContent = certsData.length + ' certificate(s) issued' + (q ? ' — showing ' + certShown.length : '');
   document.getElementById('cert-list').innerHTML = certShown.map((c,i)=>`
     <div class="card-item" style="${c.revoked?'opacity:.65':''}">
-      <div style="font-family:monospace;font-weight:700;letter-spacing:.04em">${esc(c.id)} ${c.type==='member'?'<span style="font-family:inherit;font-size:.75rem;color:#9ec1ff">· 🪪 MEMBER ID</span>':''} ${c.revoked?'<span style="color:#f87171;font-family:inherit;font-size:.75rem">· REVOKED</span>':''}</div>
+      <div style="font-family:monospace;font-weight:700;letter-spacing:.04em">${esc(c.id)} ${c.type==='member'?'<span style="font-family:inherit;font-size:.75rem;color:#7cc8f5">· 🪪 MEMBER ID</span>':''} ${c.revoked?'<span style="color:#f87171;font-family:inherit;font-size:.75rem">· REVOKED</span>':''}</div>
       <div style="margin-top:4px"><b>${esc(c.name)}</b> — ${esc(c.title)}</div>
       <div class="hint">${esc(c.date||'')}${c.note ? ' · ' + esc(c.note) : ''}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
@@ -2180,8 +2180,8 @@ function printCert(i){
   const css = 'body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#0f1533;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
     + '.mono{font-family:Consolas,monospace;letter-spacing:.06em}'
     + (isM
-      ? '@page{size:A4;margin:12mm}.card{width:86mm;height:54mm;margin:20px auto;border-radius:4mm;overflow:hidden;background:linear-gradient(135deg,#0b1330,#2b3fb8 60%,#7b2ff7);color:#fff;position:relative;box-sizing:border-box;padding:5mm}.top{display:flex;align-items:center;gap:3mm}.top img{width:11mm;height:11mm;border-radius:2.5mm}.top b{font-size:9pt;line-height:1.2}.top span{display:block;font-size:6pt;opacity:.8;letter-spacing:.12em;text-transform:uppercase}.nm{font-size:13pt;font-weight:700;margin-top:6mm}.rl{font-size:8pt;opacity:.9;margin-top:1mm}.id{position:absolute;left:5mm;bottom:5mm;font-size:7.5pt}.id span{display:block;font-size:5.5pt;opacity:.75;text-transform:uppercase;letter-spacing:.1em}.qr{position:absolute;right:4mm;bottom:4mm;background:#fff;padding:1mm;border-radius:2mm}.qr svg{width:17mm;height:17mm;display:block}'
-      : '@page{size:A4 landscape;margin:0}.pg{width:297mm;height:210mm;box-sizing:border-box;padding:10mm}.card{height:100%;border:2.5mm solid #2b6cf6;border-image:linear-gradient(135deg,#2b6cf6,#7b2ff7) 1;box-sizing:border-box;text-align:center;padding:12mm 20mm;position:relative}.card img.lg{width:26mm;height:26mm;border-radius:6mm}.org{font-size:20pt;font-weight:700;margin-top:3mm}.kick{color:#7b2ff7;letter-spacing:.3em;text-transform:uppercase;font-size:11pt;margin:3mm 0 8mm}.sm{color:#5b6382;font-size:11pt;margin:3mm 0}.nm{font-size:32pt;font-weight:700;color:#2b3fb8;margin:4mm 0}.tt{font-size:18pt;font-weight:700;margin:3mm 0}.nt{color:#5b6382;font-size:11pt}.ft{position:absolute;left:20mm;right:20mm;bottom:12mm;display:flex;justify-content:space-between;align-items:flex-end;text-align:left;font-size:10pt}.ft span{display:block;font-size:8pt;color:#5b6382;text-transform:uppercase;letter-spacing:.1em}.qr svg{width:26mm;height:26mm;display:block}');
+      ? '@page{size:A4;margin:12mm}.card{width:86mm;height:54mm;margin:20px auto;border-radius:4mm;overflow:hidden;background:linear-gradient(135deg,#081633,#1d4fae 60%,#6a1fb0);color:#fff;position:relative;box-sizing:border-box;padding:5mm}.top{display:flex;align-items:center;gap:3mm}.top img{width:11mm;height:11mm;border-radius:2.5mm}.top b{font-size:9pt;line-height:1.2}.top span{display:block;font-size:6pt;opacity:.8;letter-spacing:.12em;text-transform:uppercase}.nm{font-size:13pt;font-weight:700;margin-top:6mm}.rl{font-size:8pt;opacity:.9;margin-top:1mm}.id{position:absolute;left:5mm;bottom:5mm;font-size:7.5pt}.id span{display:block;font-size:5.5pt;opacity:.75;text-transform:uppercase;letter-spacing:.1em}.qr{position:absolute;right:4mm;bottom:4mm;background:#fff;padding:1mm;border-radius:2mm}.qr svg{width:17mm;height:17mm;display:block}'
+      : '@page{size:A4 landscape;margin:0}.pg{width:297mm;height:210mm;box-sizing:border-box;padding:10mm}.card{height:100%;border:2.5mm solid #0a68c8;border-image:linear-gradient(135deg,#0a68c8,#6a1fb0) 1;box-sizing:border-box;text-align:center;padding:12mm 20mm;position:relative}.card img.lg{width:26mm;height:26mm;border-radius:6mm}.org{font-size:20pt;font-weight:700;margin-top:3mm}.kick{color:#6a1fb0;letter-spacing:.3em;text-transform:uppercase;font-size:11pt;margin:3mm 0 8mm}.sm{color:#5b6382;font-size:11pt;margin:3mm 0}.nm{font-size:32pt;font-weight:700;color:#1d4fae;margin:4mm 0}.tt{font-size:18pt;font-weight:700;margin:3mm 0}.nt{color:#5b6382;font-size:11pt}.ft{position:absolute;left:20mm;right:20mm;bottom:12mm;display:flex;justify-content:space-between;align-items:flex-end;text-align:left;font-size:10pt}.ft span{display:block;font-size:8pt;color:#5b6382;text-transform:uppercase;letter-spacing:.1em}.qr svg{width:26mm;height:26mm;display:block}');
   let body;
   if(isM){
     body = '<div class="card"><div class="top"><img src="'+VYA_LOGO+'"><div><b>Visionary Youth Alliance</b><span>Member ID</span></div></div><div class="nm">'+esc(c.name)+'</div><div class="rl">'+esc(c.title)+'</div><div class="id"><span>Member ID</span><b class="mono">'+esc(c.id)+'</b></div><div class="qr">'+qr+'</div></div>';
