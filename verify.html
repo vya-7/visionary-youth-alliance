@@ -265,6 +265,7 @@ footer li a:hover{padding-left:6px;}
 .cert-name{font-family:'Poppins',sans-serif;font-weight:800;font-size:clamp(1.6rem,6vw,2.5rem);line-height:1.2;margin:8px 0 12px;background:linear-gradient(100deg,#0a68c8,#6a1fb0);-webkit-background-clip:text;background-clip:text;color:transparent;overflow-wrap:anywhere;}
 .cert-title{font-family:'Poppins',sans-serif;font-weight:700;font-size:clamp(1.1rem,3.6vw,1.45rem);color:var(--ink);margin:8px 0 6px;overflow-wrap:anywhere;}
 .cert-note{color:var(--muted);font-size:.9rem;margin-top:6px;}
+.cert-pos{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:9px 20px;border-radius:999px;background:linear-gradient(100deg,#0a68c8,#6a1fb0);color:#fff;font:700 1rem Poppins,sans-serif;letter-spacing:.02em;box-shadow:0 10px 24px rgba(10,60,150,.35);-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .cert-foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:28px;padding-top:18px;border-top:1px solid #e6e9f7;text-align:left;}
 .cert-foot span{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:2px;}
 .cert-foot b{font-size:.95rem;color:var(--ink);}
@@ -1871,6 +1872,7 @@ function certHtml(id, c){
     '<div class="cert-name">'+esc(c.name)+'</div>' +
     '<div class="cert-small">'+(m?'is an official member of Visionary Youth Alliance':'has successfully completed / participated in')+'</div>' +
     '<div class="cert-title">'+esc(c.title)+'</div>' +
+    (c.position ? '<div class="cert-pos"><span>🏅</span> '+esc(c.position)+'</div>' : '') +
     (c.note ? '<div class="cert-note">'+esc(c.note)+'</div>' : '') +
     '<div class="cert-foot"><div><span>'+(m?'Member since':'Issued on')+'</span><b>'+fmtDate(c.date)+'</b></div><div><span>'+(m?'Member ID':'Certificate ID')+'</span><b class="mono">'+esc(id)+'</b></div><div class="cert-qr">'+(window.vyaQR?vyaQR(vurl,84):'')+'</div></div>' +
   '</div></div>' +

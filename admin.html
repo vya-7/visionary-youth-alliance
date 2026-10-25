@@ -279,9 +279,11 @@ Correct: A"></textarea>
         <label>Type</label><select id="cert-type"><option value="certificate">🎓 Certificate</option><option value="member">🪪 Member ID Card</option></select>
         <label>Certificate title (program / achievement) — or role for a Member ID</label><input id="cert-title" placeholder="e.g. Leadership Development Workshop">
         <label>Issue date</label><input id="cert-date" type="date">
+        <label>Position / Rank (optional) — applies to everyone below</label><input id="cert-position" placeholder="e.g. 1st Position, Champion, Participant, Executive Member">
         <label>Note (optional, shown on certificate)</label><input id="cert-note" placeholder="e.g. Completed with distinction">
         <label>Recipient name(s) — one per line</label>
-        <textarea id="cert-names" style="min-height:120px" placeholder="Rahim Uddin&#10;Karima Akter&#10;..."></textarea>
+        <textarea id="cert-names" style="min-height:120px" placeholder="Rahim Uddin&#10;Karima Akter | 1st Position&#10;Sabbir Ahmed | 2nd Position"></textarea>
+        <p class="hint">Tip: write a different position for one person after a | sign (e.g. Karima Akter | 1st Position). It overrides the position above.</p>
         <button type="button" class="btn-add" onclick="issueCerts()">🎓 Issue certificate(s)</button>
         <p id="cert-status" class="hint"></p>
         <p class="hint">Each recipient gets a unique ID (like VYA-AB12-CD34). Anyone can check it at verify.html. Certificates are saved instantly — no need to press Save Changes.</p>
@@ -2063,6 +2065,7 @@ function renderCerts(){
     <div class="card-item" style="${c.revoked?'opacity:.65':''}">
       <div style="font-family:monospace;font-weight:700;letter-spacing:.04em">${esc(c.id)} ${c.type==='member'?'<span style="font-family:inherit;font-size:.75rem;color:#7cc8f5">· 🪪 MEMBER ID</span>':''} ${c.revoked?'<span style="color:#f87171;font-family:inherit;font-size:.75rem">· REVOKED</span>':''}</div>
       <div style="margin-top:4px"><b>${esc(c.name)}</b> — ${esc(c.title)}</div>
+      ${c.position ? `<div style="margin-top:4px;color:#7cc8f5;font-weight:600">🏅 ${esc(c.position)}</div>` : ''}
       <div class="hint">${esc(c.date||'')}${c.note ? ' · ' + esc(c.note) : ''}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
         <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px" onclick="certAction('copy',${i})">🔗 Copy link</button>
@@ -2099,7 +2102,8 @@ async function issueCerts(){
   const title = document.getElementById('cert-title').value.trim();
   const date = document.getElementById('cert-date').value || new Date().toISOString().slice(0,10);
   const note = document.getElementById('cert-note').value.trim();
-  const names = document.getElementById('cert-names').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const position = document.getElementById('cert-position').value.trim();
+  const names = document.getElementById('cert-names').value.split('\n').map(s=>s.trim()).filter(Boolean).map(line=>{ const k = line.indexOf('|'); return k > 0 ? {name: line.slice(0,k).trim(), pos: line.slice(k+1).trim()} : {name: line, pos: ''}; }).filter(x=>x.name);
   if(!title){ st.textContent = 'Please enter the certificate title.'; st.style.color = '#f87171'; return; }
   if(!names.length){ st.textContent = 'Please enter at least one recipient name.'; st.style.color = '#f87171'; return; }
   st.textContent = 'Issuing ' + names.length + ' certificate(s)…'; st.style.color = '#9aa3d1';
@@ -2108,10 +2112,12 @@ async function issueCerts(){
     const issued = [];
     for(let start=0; start<names.length; start+=400){
       const batch = db.batch();
-      names.slice(start, start+400).forEach(name=>{
+      names.slice(start, start+400).forEach(item=>{
+        const name = item.name;
         let id; do{ id = genCertId(); }while(used.has(id)); used.add(id);
         const rec = { name, title, date, createdAt: new Date().toISOString(), revoked: false };
         if(note) rec.note = note;
+        if(item.pos || position) rec.position = item.pos || position;
         if(document.getElementById('cert-type').value === 'member') rec.type = 'member';
         batch.set(db.collection('certificates').doc(id), rec);
         issued.push({ id, name });
@@ -2181,12 +2187,12 @@ function printCert(i){
     + '.mono{font-family:Consolas,monospace;letter-spacing:.06em}'
     + (isM
       ? '@page{size:A4;margin:12mm}.card{width:86mm;height:54mm;margin:20px auto;border-radius:4mm;overflow:hidden;background:linear-gradient(135deg,#081633,#1d4fae 60%,#6a1fb0);color:#fff;position:relative;box-sizing:border-box;padding:5mm}.top{display:flex;align-items:center;gap:3mm}.top img{width:11mm;height:11mm;border-radius:2.5mm}.top b{font-size:9pt;line-height:1.2}.top span{display:block;font-size:6pt;opacity:.8;letter-spacing:.12em;text-transform:uppercase}.nm{font-size:13pt;font-weight:700;margin-top:6mm}.rl{font-size:8pt;opacity:.9;margin-top:1mm}.id{position:absolute;left:5mm;bottom:5mm;font-size:7.5pt}.id span{display:block;font-size:5.5pt;opacity:.75;text-transform:uppercase;letter-spacing:.1em}.qr{position:absolute;right:4mm;bottom:4mm;background:#fff;padding:1mm;border-radius:2mm}.qr svg{width:17mm;height:17mm;display:block}'
-      : '@page{size:A4 landscape;margin:0}.pg{width:297mm;height:210mm;box-sizing:border-box;padding:10mm}.card{height:100%;border:2.5mm solid #0a68c8;border-image:linear-gradient(135deg,#0a68c8,#6a1fb0) 1;box-sizing:border-box;text-align:center;padding:12mm 20mm;position:relative}.card img.lg{width:26mm;height:26mm;border-radius:6mm}.org{font-size:20pt;font-weight:700;margin-top:3mm}.kick{color:#6a1fb0;letter-spacing:.3em;text-transform:uppercase;font-size:11pt;margin:3mm 0 8mm}.sm{color:#5b6382;font-size:11pt;margin:3mm 0}.nm{font-size:32pt;font-weight:700;color:#1d4fae;margin:4mm 0}.tt{font-size:18pt;font-weight:700;margin:3mm 0}.nt{color:#5b6382;font-size:11pt}.ft{position:absolute;left:20mm;right:20mm;bottom:12mm;display:flex;justify-content:space-between;align-items:flex-end;text-align:left;font-size:10pt}.ft span{display:block;font-size:8pt;color:#5b6382;text-transform:uppercase;letter-spacing:.1em}.qr svg{width:26mm;height:26mm;display:block}');
+      : '@page{size:A4 landscape;margin:0}.pg{width:297mm;height:210mm;box-sizing:border-box;padding:10mm}.card{height:100%;border:2.5mm solid #0a68c8;border-image:linear-gradient(135deg,#0a68c8,#6a1fb0) 1;box-sizing:border-box;text-align:center;padding:12mm 20mm;position:relative}.card img.lg{width:26mm;height:26mm;border-radius:6mm}.org{font-size:20pt;font-weight:700;margin-top:3mm}.kick{color:#6a1fb0;letter-spacing:.3em;text-transform:uppercase;font-size:11pt;margin:3mm 0 8mm}.sm{color:#5b6382;font-size:11pt;margin:3mm 0}.nm{font-size:32pt;font-weight:700;color:#1d4fae;margin:4mm 0}.tt{font-size:18pt;font-weight:700;margin:3mm 0}.nt{color:#5b6382;font-size:11pt}.ps{display:inline-block;margin:3mm 0 2mm;padding:2mm 7mm;border-radius:99px;background:linear-gradient(100deg,#0a68c8,#6a1fb0);color:#fff;font-size:13pt;font-weight:700;letter-spacing:.04em}.ft{position:absolute;left:20mm;right:20mm;bottom:12mm;display:flex;justify-content:space-between;align-items:flex-end;text-align:left;font-size:10pt}.ft span{display:block;font-size:8pt;color:#5b6382;text-transform:uppercase;letter-spacing:.1em}.qr svg{width:26mm;height:26mm;display:block}');
   let body;
   if(isM){
-    body = '<div class="card"><div class="top"><img src="'+VYA_LOGO+'"><div><b>Visionary Youth Alliance</b><span>Member ID</span></div></div><div class="nm">'+esc(c.name)+'</div><div class="rl">'+esc(c.title)+'</div><div class="id"><span>Member ID</span><b class="mono">'+esc(c.id)+'</b></div><div class="qr">'+qr+'</div></div>';
+    body = '<div class="card"><div class="top"><img src="'+VYA_LOGO+'"><div><b>Visionary Youth Alliance</b><span>Member ID</span></div></div><div class="nm">'+esc(c.name)+'</div><div class="rl">'+esc(c.title)+(c.position?' · '+esc(c.position):'')+'</div><div class="id"><span>Member ID</span><b class="mono">'+esc(c.id)+'</b></div><div class="qr">'+qr+'</div></div>';
   } else {
-    body = '<div class="pg"><div class="card"><img class="lg" src="'+VYA_LOGO+'"><div class="org">Visionary Youth Alliance</div><div class="kick">Certificate of Achievement</div><div class="sm">This is to certify that</div><div class="nm">'+esc(c.name)+'</div><div class="sm">has successfully completed / participated in</div><div class="tt">'+esc(c.title)+'</div>'+(c.note?'<div class="nt">'+esc(c.note)+'</div>':'')+'<div class="ft"><div><span>Issued on</span><b>'+esc(dt)+'</b></div><div><span>Certificate ID</span><b class="mono">'+esc(c.id)+'</b><br><span style="margin-top:2px;text-transform:none;letter-spacing:0">Verify: verify.html</span></div><div class="qr">'+qr+'</div></div></div></div>';
+    body = '<div class="pg"><div class="card"><img class="lg" src="'+VYA_LOGO+'"><div class="org">Visionary Youth Alliance</div><div class="kick">Certificate of Achievement</div><div class="sm">This is to certify that</div><div class="nm">'+esc(c.name)+'</div><div class="sm">has successfully completed / participated in</div><div class="tt">'+esc(c.title)+'</div>'+(c.position?'<div class="ps">'+esc(c.position)+'</div>':'')+(c.note?'<div class="nt">'+esc(c.note)+'</div>':'')+'<div class="ft"><div><span>Issued on</span><b>'+esc(dt)+'</b></div><div><span>Certificate ID</span><b class="mono">'+esc(c.id)+'</b><br><span style="margin-top:2px;text-transform:none;letter-spacing:0">Verify: verify.html</span></div><div class="qr">'+qr+'</div></div></div></div>';
   }
   const w = window.open('', '_blank');
   if(!w){ alert('Please allow pop-ups to print.'); return; }
