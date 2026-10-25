@@ -1,3 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /batch-admin.html
+Disallow: /batch.html
