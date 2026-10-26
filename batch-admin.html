@@ -1368,7 +1368,7 @@ function renderEdit(){
     </div>
     <label>Recipients — one per line: Name | Position (optional) | ID (optional)</label>
     <textarea id="f-rec" placeholder="Rahim Uddin&#10;Karima Akter | 1st Position&#10;Sabbir Ahmed | 2nd Position">${esc(lines(b))}</textarea>
-    <p class="hint">Leave ID empty and it is made automatically (like ${esc(b.prefix||'VYA')}01_Rahim Uddin). Existing IDs stay the same when you edit later.</p>
+    <p class="hint"><b>One person per line:</b> <code>Name | Position | ID</code><br>✍️ Whatever ID you type in the 3rd part is used <b>exactly as you wrote it</b> (e.g. <code>Rahim Uddin | 1st Position | MIQ-2026-001</code>). Position is optional (leave blank like <code>Rahim Uddin | | MIQ-2026-001</code>). If you leave the ID empty it is made automatically (like ${esc(b.prefix||'VYA')}01_Rahim Uddin). You can paste rows from Excel too. Existing IDs stay the same when you edit later.</p>
     <label>Closing message (optional)</label><textarea id="f-msg" style="min-height:80px;font-family:inherit">${esc(b.message)}</textarea>
     ${b.isNew ? `<label>Custom page address (optional)</label><input id="f-slug" placeholder="leave empty for a private random address"><p class="hint">A random address can't be guessed. A custom one (e.g. quiz-26-01) is easier but guessable.</p>` : ''}
     <label style="display:flex;gap:10px;align-items:center;cursor:pointer"><input id="f-active" type="checkbox" style="width:auto;margin:0" ${b.active!==false?'checked':''}> Page is live (untick to switch it off)</label>
@@ -1380,7 +1380,7 @@ function renderEdit(){
 }
 function parseRecipients(text, prefix, existing){
   const used = new Set(), out = [];
-  const rows = text.split('\n').map(s=>s.trim()).filter(Boolean).map(l=>{ const p=l.split('|').map(x=>x.trim()); return {name:p[0], position:p[1]||'', id:p[2]||''}; }).filter(r=>r.name);
+  const rows = text.split('\n').map(s=>s.trim()).filter(Boolean).map(l=>{ const p=l.split(/\||\t/).map(x=>x.trim()); return {name:p[0], position:p[1]||'', id:p[2]||''}; }).filter(r=>r.name);
   rows.forEach(r=>{ if(r.id) used.add(r.id); });
   const pad = Math.max(2, String(rows.length).length);
   let n = 0;
@@ -1399,6 +1399,7 @@ async function saveBatch(){
   const prefix = ($('f-prefix').value.trim() || 'VYA').replace(/[^A-Za-z0-9]/g,'');
   const rec = parseRecipients($('f-rec').value, prefix);
   if(!rec.length){ toast('Add at least one recipient',true); return; }
+  const seen={}; for(const r of rec){ const k=String(r.id).toLowerCase(); if(seen[k]){ toast('Duplicate ID: '+r.id+' — every person needs a different ID',true); return; } seen[k]=1; if(/[<>]/.test(r.id)){ toast('ID cannot contain < or >',true); return; } }
   let id = b.id;
   if(b.isNew){
     const slug = ($('f-slug')||{}).value ? $('f-slug').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g,'-') : '';
