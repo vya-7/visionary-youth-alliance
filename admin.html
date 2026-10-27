@@ -272,6 +272,9 @@ Correct: A"></textarea>
         <legend>Verify Page Intro</legend>
         <label>Heading</label><input id="vf-intro-title" placeholder="Verify a Certificate">
         <label>Intro text</label><textarea id="vf-intro-lead" placeholder="Short intro shown at the top of the verify page"></textarea>
+        <label>Certificate line 1 (above the name)</label><input id="vf-certify" placeholder="This is to certify that">
+        <label>Certificate line 2 (below the name)</label><input id="vf-phrase" placeholder="has successfully completed / participated in">
+        <p class="hint">These two lines appear on every certificate in the verify page and in the printed certificate. Leave empty to use the default wording.</p>
         <p class="hint">Edit, then press 💾 Save Changes at the top.</p>
       </fieldset>
       <fieldset>
@@ -1750,6 +1753,8 @@ function fillForm(d){
   const vi = d.verifyIntro || {};
   document.getElementById('vf-intro-title').value = vi.title || '';
   document.getElementById('vf-intro-lead').value = vi.lead || '';
+  document.getElementById('vf-certify').value = vi.certify || '';
+  document.getElementById('vf-phrase').value = vi.phrase || '';
   renderQuizSectors(d.quizSectors||[]);
   loadQuizCounts();
   loadCerts();
@@ -2192,7 +2197,7 @@ function printCert(i){
   if(isM){
     body = '<div class="card"><div class="top"><img src="'+VYA_LOGO+'"><div><b>Visionary Youth Alliance</b><span>Member ID</span></div></div><div class="nm">'+esc(c.name)+'</div><div class="rl">'+esc(c.title)+(c.position?' · '+esc(c.position):'')+'</div><div class="id"><span>Member ID</span><b class="mono">'+esc(c.id)+'</b></div><div class="qr">'+qr+'</div></div>';
   } else {
-    body = '<div class="pg"><div class="card"><img class="lg" src="'+VYA_LOGO+'"><div class="org">Visionary Youth Alliance</div><div class="kick">Certificate of Achievement</div><div class="sm">This is to certify that</div><div class="nm">'+esc(c.name)+'</div><div class="sm">has successfully completed / participated in</div><div class="tt">'+esc(c.title)+'</div>'+(c.position?'<div class="ps">'+esc(c.position)+'</div>':'')+(c.note?'<div class="nt">'+esc(c.note)+'</div>':'')+'<div class="ft"><div><span>Issued on</span><b>'+esc(dt)+'</b></div><div><span>Certificate ID</span><b class="mono">'+esc(c.id)+'</b><br><span style="margin-top:2px;text-transform:none;letter-spacing:0">Verify: verify.html</span></div><div class="qr">'+qr+'</div></div></div></div>';
+    body = '<div class="pg"><div class="card"><img class="lg" src="'+VYA_LOGO+'"><div class="org">Visionary Youth Alliance</div><div style="height:8mm"></div><div class="sm">'+esc((document.getElementById('vf-certify').value||'').trim()||'This is to certify that')+'</div><div class="nm">'+esc(c.name)+'</div><div class="sm">'+esc((document.getElementById('vf-phrase').value||'').trim()||'has successfully completed / participated in')+'</div><div class="tt">'+esc(c.title)+'</div>'+(c.position?'<div class="ps">'+esc(c.position)+'</div>':'')+(c.note?'<div class="nt">'+esc(c.note)+'</div>':'')+'<div class="ft"><div><span>Issued on</span><b>'+esc(dt)+'</b></div><div><span>Certificate ID</span><b class="mono">'+esc(c.id)+'</b><br><span style="margin-top:2px;text-transform:none;letter-spacing:0">Verify: verify.html</span></div><div class="qr">'+qr+'</div></div></div></div>';
   }
   const w = window.open('', '_blank');
   if(!w){ alert('Please allow pop-ups to print.'); return; }
@@ -2334,7 +2339,7 @@ function buildData(){
     network: networkData.filter(n=>n.name && n.url),
     quizIntro: { title: document.getElementById('quiz-intro-title').value, lead: document.getElementById('quiz-intro-lead').value },
     verifyPromo: { title: document.getElementById('vp-intro-title').value, lead: document.getElementById('vp-intro-lead').value },
-    verifyIntro: { title: document.getElementById('vf-intro-title').value, lead: document.getElementById('vf-intro-lead').value },
+    verifyIntro: { title: document.getElementById('vf-intro-title').value, lead: document.getElementById('vf-intro-lead').value, certify: document.getElementById('vf-certify').value, phrase: document.getElementById('vf-phrase').value },
     notice: { enabled: document.getElementById('notice-enabled').checked, items: noticeItems.filter(x=>String(x.text||'').trim()).map(x=>({text:x.text.trim(), link:(x.link||'').trim()})), style: document.getElementById('notice-style').value, speed: Number(document.getElementById('notice-speed').value) || 60 },
     quizSectors: quizSectorsData.filter(s=>s.id && s.name),
     blog: blogData.filter(p=>p.title || p.content).map(p=>({...p, id: p.id || ('post-'+Date.now()+'-'+Math.random().toString(36).slice(2,7))})),

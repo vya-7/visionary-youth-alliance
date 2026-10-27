@@ -1369,6 +1369,8 @@ function renderEdit(){
     <label>Recipients — one per line: Name | Position (optional) | ID (optional)</label>
     <textarea id="f-rec" placeholder="Rahim Uddin&#10;Karima Akter | 1st Position&#10;Sabbir Ahmed | 2nd Position">${esc(lines(b))}</textarea>
     <p class="hint"><b>One person per line:</b> <code>Name | Position | ID</code><br>✍️ Whatever ID you type in the 3rd part is used <b>exactly as you wrote it</b> (e.g. <code>Rahim Uddin | 1st Position | MIQ-2026-001</code>). Position is optional (leave blank like <code>Rahim Uddin | | MIQ-2026-001</code>). If you leave the ID empty it is made automatically (like ${esc(b.prefix||'VYA')}01_Rahim Uddin). You can paste rows from Excel too. Existing IDs stay the same when you edit later.</p>
+    <div class="g2" style="margin-top:12px"><div><label>Certificate line 1 (above the name)</label><input id="f-certify" value="${esc(b.certify||'')}" placeholder="This is to certify that"></div>
+    <div><label>Certificate line 2 (below the name)</label><input id="f-phrase" value="${esc(b.phrase||'')}" placeholder="has successfully completed / participated in"></div></div>
     <label>Closing message (optional)</label><textarea id="f-msg" style="min-height:80px;font-family:inherit">${esc(b.message)}</textarea>
     ${b.isNew ? `<label>Custom page address (optional)</label><input id="f-slug" placeholder="leave empty for a private random address"><p class="hint">A random address can't be guessed. A custom one (e.g. quiz-26-01) is easier but guessable.</p>` : ''}
     <label style="display:flex;gap:10px;align-items:center;cursor:pointer"><input id="f-active" type="checkbox" style="width:auto;margin:0" ${b.active!==false?'checked':''}> Page is live (untick to switch it off)</label>
@@ -1406,7 +1408,7 @@ async function saveBatch(){
     id = slug || rid();
     if(batches.some(x=>x.id===id)){ toast('That address is already used',true); return; }
   }
-  const data = { title, certNo:$('f-certno').value.trim(), type:$('f-type').value.trim(), date:$('f-date').value, organizer:$('f-org').value.trim()||'Visionary Youth Alliance', prefix, message:$('f-msg').value.trim(), active:$('f-active').checked, recipients:rec, updatedAt:new Date().toISOString() };
+  const data = { title, certNo:$('f-certno').value.trim(), type:$('f-type').value.trim(), date:$('f-date').value, organizer:$('f-org').value.trim()||'Visionary Youth Alliance', prefix, certify:$('f-certify').value.trim(), phrase:$('f-phrase').value.trim(), message:$('f-msg').value.trim(), active:$('f-active').checked, recipients:rec, updatedAt:new Date().toISOString() };
   if(b.isNew) data.createdAt = new Date().toISOString(); else data.createdAt = b.createdAt || new Date().toISOString();
   btn.disabled = true;
   try{

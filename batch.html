@@ -210,9 +210,9 @@ function openCert(i){
   const r = B.recipients[i]; if(!r) return;
   document.getElementById('cm').innerHTML = '<div><div class="cert"><div class="cert-in"><img src="'+logoSrc()+'" alt="">'
    +'<div class="org">Visionary Youth Alliance</div>'+(B.type?'<div class="ty">'+esc(B.type)+'</div>':'')
-   +'<div class="sm">This is to certify that</div><div class="nm2">'+esc(r.name)+'</div>'
+   +'<div class="sm">'+esc(B.certify||'This is to certify that')+'</div><div class="nm2">'+esc(r.name)+'</div>'
    +(r.position?'<div class="ps">🏅 '+esc(r.position)+'</div>':'')
-   +'<div class="sm">has successfully completed / participated in</div><div class="ev">'+esc(B.title||'')+'</div>'
+   +'<div class="sm">'+esc(B.phrase||'has successfully completed / participated in')+'</div><div class="ev">'+esc(B.title||'')+'</div>'
    +'<dl>'+(B.date?'<div><dt>Issued on</dt><dd>'+fmtDate(B.date)+'</dd></div>':'')+'<div><dt>Certificate ID</dt><dd class="mono">'+esc(r.id)+'</dd></div>'+(B.certNo?'<div><dt>Certificate No</dt><dd class="mono">'+esc(B.certNo)+'</dd></div>':'')+'</dl>'
    +'<div class="cert-ok">✅ Verified certificate issued by '+esc(B.organizer||'Visionary Youth Alliance')+'</div></div></div>'
    +'<div class="cact"><button type="button" onclick="window.print()">🖨 Print</button><button type="button" onclick="closeCert()">Close</button></div></div>';
