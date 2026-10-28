@@ -1354,7 +1354,7 @@ function renderList(){
 }
 function newBatch(){ cur = {id:'', isNew:true, title:'', certNo:'', type:'Certificate of Participation', date:new Date().toISOString().slice(0,10), organizer:'Visionary Youth Alliance', message:'Thank you for being part of this event. May your journey of learning and leadership continue.', active:true, recipients:[], prefix:'VYA'}; renderEdit(); renderList(); }
 function openBatch(i){ cur = Object.assign({}, batches[i]); renderEdit(); renderList(); window.scrollTo({top:0,behavior:'smooth'}); }
-function lines(b){ return (b.recipients||[]).map(r=>[r.name,r.position||'',r.id].join(' | ')).join('\n'); }
+function lines(b){ return (b.recipients||[]).map(r=>[r.name,r.position||'',r.id].concat(r.phrase?[r.phrase]:[]).join(' | ')).join('\n'); }
 function renderEdit(){
   const b = cur, url = b.id ? pageUrl(b.id) : '';
   $('edit').innerHTML = `
@@ -1368,7 +1368,7 @@ function renderEdit(){
     </div>
     <label>Recipients — one per line: Name | Position (optional) | ID (optional)</label>
     <textarea id="f-rec" placeholder="Rahim Uddin&#10;Karima Akter | 1st Position&#10;Sabbir Ahmed | 2nd Position">${esc(lines(b))}</textarea>
-    <p class="hint"><b>One person per line:</b> <code>Name | Position | ID</code><br>✍️ Whatever ID you type in the 3rd part is used <b>exactly as you wrote it</b> (e.g. <code>Rahim Uddin | 1st Position | MIQ-2026-001</code>). Position is optional (leave blank like <code>Rahim Uddin | | MIQ-2026-001</code>). If you leave the ID empty it is made automatically (like ${esc(b.prefix||'VYA')}01_Rahim Uddin). You can paste rows from Excel too. Existing IDs stay the same when you edit later.</p>
+    <p class="hint"><b>One person per line:</b> <code>Name | Position | ID | Line below the name</code> (last part optional — different wording for each person)<br>✍️ Whatever ID you type in the 3rd part is used <b>exactly as you wrote it</b> (e.g. <code>Rahim Uddin | 1st Position | MIQ-2026-001</code>). Position is optional (leave blank like <code>Rahim Uddin | | MIQ-2026-001</code>). If you leave the ID empty it is made automatically (like ${esc(b.prefix||'VYA')}01_Rahim Uddin). You can paste rows from Excel too. Existing IDs stay the same when you edit later.</p>
     <div class="g2" style="margin-top:12px"><div><label>Certificate line 1 (above the name)</label><input id="f-certify" value="${esc(b.certify||'')}" placeholder="This is to certify that"></div>
     <div><label>Certificate line 2 (below the name)</label><input id="f-phrase" value="${esc(b.phrase||'')}" placeholder="has successfully completed / participated in"></div></div>
     <label>Closing message (optional)</label><textarea id="f-msg" style="min-height:80px;font-family:inherit">${esc(b.message)}</textarea>
@@ -1382,7 +1382,7 @@ function renderEdit(){
 }
 function parseRecipients(text, prefix, existing){
   const used = new Set(), out = [];
-  const rows = text.split('\n').map(s=>s.trim()).filter(Boolean).map(l=>{ const p=l.split(/\||\t/).map(x=>x.trim()); return {name:p[0], position:p[1]||'', id:p[2]||''}; }).filter(r=>r.name);
+  const rows = text.split('\n').map(s=>s.trim()).filter(Boolean).map(l=>{ const p=l.split(/\||\t/).map(x=>x.trim()); return {name:p[0], position:p[1]||'', id:p[2]||'', phrase:p[3]||''}; }).filter(r=>r.name);
   rows.forEach(r=>{ if(r.id) used.add(r.id); });
   const pad = Math.max(2, String(rows.length).length);
   let n = 0;
@@ -1390,7 +1390,7 @@ function parseRecipients(text, prefix, existing){
   rows.forEach((r,i)=>{
     let id = r.id;
     if(!id){ do{ n++; id = prefix + String(n).padStart(pad,'0') + '_' + r.name; }while(used.has(id)); used.add(id); }
-    out.push({id, name:r.name, position:r.position});
+    const o={id, name:r.name, position:r.position}; if(r.phrase) o.phrase=r.phrase; out.push(o);
   });
   return out;
 }

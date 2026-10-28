@@ -307,7 +307,22 @@ section[id]{scroll-margin-top:72px;}
 @media print{#to-top,#notice-bar{display:none !important;}}
 </style>
 <script id="vya-footer-fn">
+function vyaPartner(d){
+  try{
+    var p=(d&&d.partner)||{}; window.vyaPartnerCfg=p;
+    function e(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+    var on=p.enabled&&String(p.name||'').trim();
+    var old=document.getElementById('f-partner'); if(old) old.remove();
+    if(!on||p.showFooter===false) return;
+    var fb=document.querySelector('.fbottom'); if(!fb) return;
+    var link=/^https?:\/\//i.test(String(p.link||''))?p.link:'';
+    var el=document.createElement('div'); el.id='f-partner'; el.className='f-partner';
+    el.innerHTML='<span>🤝 In partnership with</span> '+(link?'<a href="'+e(link)+'" target="_blank" rel="noopener">'+e(p.name)+'</a>':'<b>'+e(p.name)+'</b>')+(p.tagline?'<em> — '+e(p.tagline)+'</em>':'');
+    fb.parentNode.insertBefore(el,fb);
+  }catch(err){console.warn(err)}
+}
 function vyaFooter(d){
+  try{ vyaPartner(d); }catch(e){}
   try{
     d = d || {};
     var c = d.contact || {}, s = d.social || {};
@@ -519,6 +534,32 @@ nav.scrolled{box-shadow:0 10px 34px rgba(2,10,30,.55) !important;}
 .sx-f kbd{background:#eef1fb;border:1px solid #d9def2;border-radius:5px;padding:1px 6px;font:600 .68rem ui-monospace,monospace}
 @media(max-width:600px){.sx-f{display:none}}
 @media print{.sx-btn,#sx{display:none!important}}
+</style>
+<style id="partner-css">
+.f-partner{margin-top:26px;padding:14px 18px;border:1px solid rgba(124,200,245,.28);background:linear-gradient(135deg,rgba(10,104,200,.18),rgba(106,31,176,.18));border-radius:14px;text-align:center;font-size:.88rem;color:#c9d6f2}
+.f-partner a,.f-partner b{color:#7cc8f5;font-weight:700;text-decoration:none}
+.f-partner a:hover{text-decoration:underline}
+.f-partner em{font-style:normal;color:#9fb0d6}
+.pw-line{margin-top:14px;font-size:.78rem;color:#5b6382;text-align:center}
+.pw-line a,.pw-line b{color:#0a68c8;font-weight:700;text-decoration:none}
+#partner{padding:56px 0}
+.pt-card{position:relative;overflow:hidden;border-radius:28px;padding:42px 34px;background:radial-gradient(ellipse at 20% 0%,#123a80 0%,#081633 62%);color:#fff;display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:center;box-shadow:0 30px 70px rgba(8,22,51,.35);border:1px solid rgba(124,200,245,.25)}
+.pt-card:before{content:"";position:absolute;width:340px;height:340px;right:-90px;top:-120px;border-radius:50%;background:radial-gradient(circle,rgba(106,31,176,.55),transparent 70%)}
+.pt-card>*{position:relative}
+.pt-logo{width:132px;height:132px;border-radius:30px;background:linear-gradient(135deg,#20bee5,#0a68c8 55%,#6a1fb0);display:flex;align-items:center;justify-content:center;font:800 2.1rem Poppins,sans-serif;color:#fff;box-shadow:0 22px 50px rgba(32,190,229,.35),inset 0 0 0 1px rgba(255,255,255,.3);overflow:hidden;animation:ptfloat 6s ease-in-out infinite}
+.pt-logo img{width:100%;height:100%;object-fit:cover}
+@keyframes ptfloat{50%{transform:translateY(-10px) rotate(-2deg)}}
+.pt-eb{font:600 .72rem Poppins,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#7cc8f5}
+.pt-card h3{font:800 clamp(1.5rem,4vw,2.2rem)/1.2 Poppins,sans-serif;margin:6px 0 4px;background:linear-gradient(100deg,#fff,#a8dcff 55%,#d6b8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pt-tag{font-weight:600;color:#b8c8ec;margin-bottom:10px}
+.pt-card p{color:#c9d6f2;max-width:640px;margin:0 0 14px;white-space:pre-line}
+.pt-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.pt-chips span{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);border-radius:999px;padding:6px 14px;font-size:.84rem}
+.pt-btns{display:flex;gap:10px;flex-wrap:wrap}
+.pt-btns a{display:inline-block;padding:13px 26px;border-radius:999px;font:600 .95rem Poppins,sans-serif;text-decoration:none;color:#fff;background:linear-gradient(100deg,#0a68c8,#6a1fb0);box-shadow:0 6px 0 #0a3f86,0 14px 26px rgba(10,104,200,.4);transition:.18s}
+.pt-btns a:hover{transform:translateY(-3px)}
+.pt-btns a.alt{background:transparent;border:1px solid rgba(255,255,255,.35);box-shadow:none}
+@media(max-width:700px){.pt-card{grid-template-columns:1fr;text-align:center;padding:32px 20px}.pt-logo{margin:0 auto}.pt-card p{margin-left:auto;margin-right:auto}.pt-chips,.pt-btns{justify-content:center}}
 </style>
 </head>
 <body>
@@ -1966,14 +2007,15 @@ function certHtml(id, c){
     '<img class="cert-logo" src="data:image/jpeg;base64,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" alt="VYA logo">' +
     '<div class="cert-org">Visionary Youth Alliance</div>' +
     (m?'<div class="cert-kicker">Official Member</div>':'') +
-    '<div class="cert-small">'+(m?'This confirms that':(vfTxt.certify||'This is to certify that'))+'</div>' +
+    '<div class="cert-small">'+(m?'This confirms that':esc(String(c.certify||'').trim()||vfTxt.certify||'This is to certify that'))+'</div>' +
     '<div class="cert-name">'+esc(c.name)+'</div>' +
-    '<div class="cert-small">'+(m?'is an official member of Visionary Youth Alliance':(vfTxt.phrase||'has successfully completed / participated in'))+'</div>' +
+    '<div class="cert-small">'+(m?'is an official member of Visionary Youth Alliance':esc(String(c.phrase||'').trim()||vfTxt.phrase||'has successfully completed / participated in'))+'</div>' +
     '<div class="cert-title">'+esc(c.title)+'</div>' +
     (c.position ? '<div class="cert-pos"><span>🏅</span> '+esc(c.position)+'</div>' : '') +
     (c.note ? '<div class="cert-note">'+esc(c.note)+'</div>' : '') +
     '<div class="cert-foot"><div><span>'+(m?'Member since':'Issued on')+'</span><b>'+fmtDate(c.date)+'</b></div><div><span>'+(m?'Member ID':'Certificate ID')+'</span><b class="mono">'+esc(id)+'</b></div><div class="cert-qr">'+(window.vyaQR?vyaQR(vurl,84):'')+'</div></div>' +
   '</div></div>' +
+  (window.vyaPartnerCfg&&vyaPartnerCfg.enabled&&vyaPartnerCfg.showCert!==false&&String(vyaPartnerCfg.name||'').trim()?'<div class="pw-line">Verified by Visionary Youth Alliance · in partnership with '+(/^https?:\/\//i.test(vyaPartnerCfg.link||'')?'<a href="'+esc(vyaPartnerCfg.link)+'" target="_blank" rel="noopener">'+esc(vyaPartnerCfg.name)+'</a>':'<b>'+esc(vyaPartnerCfg.name)+'</b>')+'</div>':'') +
   '<div class="vf-actions"><button type="button" class="btn btn-primary" onclick="window.print()">🖨 Print / Save as PDF</button></div>';
 }
 async function verifyId(raw){

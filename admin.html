@@ -61,6 +61,7 @@
   <div class="navitem" data-view="network">🌐 Our Network</div>
   <div class="navitem" data-view="blog">✍️ Blog &amp; Articles</div>
   <div class="navitem" data-view="daily">🌟 Daily Vision</div>
+  <div class="navitem" data-view="partner">🤝 Partner / TVBD</div>
   <div class="navitem" data-view="spotlight">🏆 Member of the Month</div>
   <div class="navitem" data-view="events">📅 Events</div>
   <div class="navitem" data-view="quiz">🧠 Quiz</div>
@@ -183,6 +184,29 @@
       </fieldset>
     </div>
 
+    <div class="view" id="v-partner">
+      <fieldset>
+        <legend>🤝 Partner / TalentVerse Bangladesh (TVBD)</legend>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--ink);font-size:.9rem;"><input type="checkbox" id="pt-enabled" style="width:auto"> Turn the partner promotion ON</label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--ink);font-size:.9rem;"><input type="checkbox" id="pt-home" style="width:auto"> Big promo section on the home page</label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--ink);font-size:.9rem;"><input type="checkbox" id="pt-foot" style="width:auto"> “In partnership with…” line in the footer of every page</label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--ink);font-size:.9rem;"><input type="checkbox" id="pt-cert" style="width:auto"> “In partnership with…” line under every verified certificate</label>
+      </fieldset>
+      <fieldset>
+        <legend>Partner details</legend>
+        <label>Small heading above the name</label><input id="pt-eyebrow" placeholder="In partnership with">
+        <label>Name</label><input id="pt-name" placeholder="TalentVerse Bangladesh">
+        <label>Short name (shown in the logo box if no logo)</label><input id="pt-short" placeholder="TVBD">
+        <label>Logo image link (optional)</label><input id="pt-logo" placeholder="https://…/logo.png">
+        <label>One-line tagline</label><input id="pt-tagline" placeholder="Discover. Develop. Deliver talent.">
+        <label>Description</label><textarea id="pt-text" placeholder="Write 2-3 lines about TVBD and what it offers to VYA members."></textarea>
+        <label>Highlights (up to 4, one per line)</label><textarea id="pt-bullets" style="min-height:90px" placeholder="Free skill workshops&#10;Talent competitions&#10;Career guidance"></textarea>
+        <div class="g2"><div><label>Main button text</label><input id="pt-btn" placeholder="Visit TalentVerse Bangladesh"></div><div><label>Main button link</label><input id="pt-link" placeholder="https://…"></div></div>
+        <div class="g2"><div><label>Second button text (optional)</label><input id="pt-btn2" placeholder="Follow on Facebook"></div><div><label>Second button link (optional)</label><input id="pt-link2" placeholder="https://facebook.com/…"></div></div>
+        <p class="hint">Nothing shows until you turn it ON and write a name. Press 💾 Save Changes to publish.</p>
+      </fieldset>
+    </div>
+
     <div class="view" id="v-spotlight">
       <fieldset>
         <legend>🏆 Member of the Month</legend>
@@ -284,9 +308,11 @@ Correct: A"></textarea>
         <label>Issue date</label><input id="cert-date" type="date">
         <label>Position / Rank (optional) — applies to everyone below</label><input id="cert-position" placeholder="e.g. 1st Position, Champion, Participant, Executive Member">
         <label>Note (optional, shown on certificate)</label><input id="cert-note" placeholder="e.g. Completed with distinction">
+        <label>Line above the name (optional) — for this issue only</label><input id="cert-certify" placeholder="This is to certify that">
+        <label>Line below the name (optional) — for this issue only</label><input id="cert-phrase" placeholder="has successfully completed / participated in">
         <label>Recipient name(s) — one per line</label>
-        <textarea id="cert-names" style="min-height:120px" placeholder="Rahim Uddin&#10;Karima Akter | 1st Position&#10;Sabbir Ahmed | 2nd Position"></textarea>
-        <p class="hint">Tip: write a different position for one person after a | sign (e.g. Karima Akter | 1st Position). It overrides the position above.</p>
+        <textarea id="cert-names" style="min-height:120px" placeholder="Rahim Uddin&#10;Karima Akter | 1st Position&#10;Sabbir Ahmed | 2nd Position | has won the 2nd prize in"></textarea>
+        <p class="hint">Format: <code>Name | Position | Line below the name</code>. Position and the last part are optional. Anything you write for one person overrides the boxes above. If a line is empty, the default wording from “Verify Page Intro” is used. You can also edit a certificate's lines later with ✏️ Edit text in the list.</p>
         <button type="button" class="btn-add" onclick="issueCerts()">🎓 Issue certificate(s)</button>
         <p id="cert-status" class="hint"></p>
         <p class="hint">Each recipient gets a unique ID (like VYA-AB12-CD34). Anyone can check it at verify.html. Certificates are saved instantly — no need to press Save Changes.</p>
@@ -1772,6 +1798,13 @@ function fillForm(d){
     { const dv = d.daily; document.getElementById('daily-enabled').checked = dv ? dv.enabled !== false : true;
       document.getElementById('daily-title').value = (dv && dv.title) || 'আজকের ভাবনা';
       quotesData = ((dv && Array.isArray(dv.quotes)) ? dv.quotes : DEFAULT_QUOTES).map(q=>({text:q.text||'',by:q.by||''})); renderQuotes();
+      { const pt = d.partner || {};
+        document.getElementById('pt-enabled').checked = !!pt.enabled;
+        document.getElementById('pt-home').checked = pt.showHome !== false;
+        document.getElementById('pt-foot').checked = pt.showFooter !== false;
+        document.getElementById('pt-cert').checked = pt.showCert !== false;
+        ['eyebrow','name','short','logo','tagline','text','btn','link','btn2','link2'].forEach(k=>{ document.getElementById('pt-'+k).value = pt[k] || ''; });
+        document.getElementById('pt-bullets').value = (pt.bullets||[]).join('\n'); }
       const sp = d.spotlight || {};
       document.getElementById('sp-enabled').checked = !!sp.enabled;
       document.getElementById('sp-month-in').value = sp.month || '';
@@ -2071,11 +2104,13 @@ function renderCerts(){
       <div style="font-family:monospace;font-weight:700;letter-spacing:.04em">${esc(c.id)} ${c.type==='member'?'<span style="font-family:inherit;font-size:.75rem;color:#7cc8f5">· 🪪 MEMBER ID</span>':''} ${c.revoked?'<span style="color:#f87171;font-family:inherit;font-size:.75rem">· REVOKED</span>':''}</div>
       <div style="margin-top:4px"><b>${esc(c.name)}</b> — ${esc(c.title)}</div>
       ${c.position ? `<div style="margin-top:4px;color:#7cc8f5;font-weight:600">🏅 ${esc(c.position)}</div>` : ''}
+      ${(c.certify||c.phrase) ? `<div class="hint">✏️ ${esc(c.certify||'')} … ${esc(c.phrase||'')}</div>` : ''}
       <div class="hint">${esc(c.date||'')}${c.note ? ' · ' + esc(c.note) : ''}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
         <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px" onclick="certAction('copy',${i})">🔗 Copy link</button>
         <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px" onclick="certAction('open',${i})">👁 Open</button>
         <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px" onclick="printCert(${i})">🖨 Print + QR</button>
+        <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px" onclick="certAction('text',${i})">✏️ Edit text</button>
         <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px" onclick="certAction('revoke',${i})">${c.revoked?'♻️ Restore':'🚫 Revoke'}</button>
         <button type="button" class="btn-add" style="width:auto;margin:0;padding:6px 12px;color:#f87171;border-color:#f87171" onclick="certAction('delete',${i})">🗑 Delete</button>
       </div>
@@ -2090,6 +2125,13 @@ async function certAction(kind, i){
       catch(e){ prompt('Copy this link:', link); }
     } else if(kind === 'open'){
       window.open(certLink(c.id), '_blank');
+    } else if(kind === 'text'){
+      const l1 = prompt('Line ABOVE the name (leave empty for the default):', c.certify || '');
+      if(l1 === null) return;
+      const l2 = prompt('Line BELOW the name (leave empty for the default):', c.phrase || '');
+      if(l2 === null) return;
+      await db.collection('certificates').doc(c.id).update({ certify: l1.trim(), phrase: l2.trim() });
+      await loadCerts();
     } else if(kind === 'revoke'){
       const next = !c.revoked;
       if(next && !confirm('Revoke ' + c.id + '? The verify page will show it as invalid.')) return;
@@ -2108,7 +2150,8 @@ async function issueCerts(){
   const date = document.getElementById('cert-date').value || new Date().toISOString().slice(0,10);
   const note = document.getElementById('cert-note').value.trim();
   const position = document.getElementById('cert-position').value.trim();
-  const names = document.getElementById('cert-names').value.split('\n').map(s=>s.trim()).filter(Boolean).map(line=>{ const k = line.indexOf('|'); return k > 0 ? {name: line.slice(0,k).trim(), pos: line.slice(k+1).trim()} : {name: line, pos: ''}; }).filter(x=>x.name);
+  const certifyAll = document.getElementById('cert-certify').value.trim(), phraseAll = document.getElementById('cert-phrase').value.trim();
+  const names = document.getElementById('cert-names').value.split('\n').map(s=>s.trim()).filter(Boolean).map(line=>{ const p = line.split('|').map(x=>x.trim()); return {name: p[0], pos: p[1]||'', phrase: p[2]||''}; }).filter(x=>x.name);
   if(!title){ st.textContent = 'Please enter the certificate title.'; st.style.color = '#f87171'; return; }
   if(!names.length){ st.textContent = 'Please enter at least one recipient name.'; st.style.color = '#f87171'; return; }
   st.textContent = 'Issuing ' + names.length + ' certificate(s)…'; st.style.color = '#9aa3d1';
@@ -2122,6 +2165,8 @@ async function issueCerts(){
         let id; do{ id = genCertId(); }while(used.has(id)); used.add(id);
         const rec = { name, title, date, createdAt: new Date().toISOString(), revoked: false };
         if(note) rec.note = note;
+        if(certifyAll) rec.certify = certifyAll;
+        if(item.phrase || phraseAll) rec.phrase = item.phrase || phraseAll;
         if(item.pos || position) rec.position = item.pos || position;
         if(document.getElementById('cert-type').value === 'member') rec.type = 'member';
         batch.set(db.collection('certificates').doc(id), rec);
@@ -2197,7 +2242,7 @@ function printCert(i){
   if(isM){
     body = '<div class="card"><div class="top"><img src="'+VYA_LOGO+'"><div><b>Visionary Youth Alliance</b><span>Member ID</span></div></div><div class="nm">'+esc(c.name)+'</div><div class="rl">'+esc(c.title)+(c.position?' · '+esc(c.position):'')+'</div><div class="id"><span>Member ID</span><b class="mono">'+esc(c.id)+'</b></div><div class="qr">'+qr+'</div></div>';
   } else {
-    body = '<div class="pg"><div class="card"><img class="lg" src="'+VYA_LOGO+'"><div class="org">Visionary Youth Alliance</div><div style="height:8mm"></div><div class="sm">'+esc((document.getElementById('vf-certify').value||'').trim()||'This is to certify that')+'</div><div class="nm">'+esc(c.name)+'</div><div class="sm">'+esc((document.getElementById('vf-phrase').value||'').trim()||'has successfully completed / participated in')+'</div><div class="tt">'+esc(c.title)+'</div>'+(c.position?'<div class="ps">'+esc(c.position)+'</div>':'')+(c.note?'<div class="nt">'+esc(c.note)+'</div>':'')+'<div class="ft"><div><span>Issued on</span><b>'+esc(dt)+'</b></div><div><span>Certificate ID</span><b class="mono">'+esc(c.id)+'</b><br><span style="margin-top:2px;text-transform:none;letter-spacing:0">Verify: verify.html</span></div><div class="qr">'+qr+'</div></div></div></div>';
+    body = '<div class="pg"><div class="card"><img class="lg" src="'+VYA_LOGO+'"><div class="org">Visionary Youth Alliance</div><div style="height:8mm"></div><div class="sm">'+esc((c.certify||'').trim()||(document.getElementById('vf-certify').value||'').trim()||'This is to certify that')+'</div><div class="nm">'+esc(c.name)+'</div><div class="sm">'+esc((c.phrase||'').trim()||(document.getElementById('vf-phrase').value||'').trim()||'has successfully completed / participated in')+'</div><div class="tt">'+esc(c.title)+'</div>'+(c.position?'<div class="ps">'+esc(c.position)+'</div>':'')+(c.note?'<div class="nt">'+esc(c.note)+'</div>':'')+'<div class="ft"><div><span>Issued on</span><b>'+esc(dt)+'</b></div><div><span>Certificate ID</span><b class="mono">'+esc(c.id)+'</b><br><span style="margin-top:2px;text-transform:none;letter-spacing:0">Verify: verify.html</span></div><div class="qr">'+qr+'</div></div></div></div>';
   }
   const w = window.open('', '_blank');
   if(!w){ alert('Please allow pop-ups to print.'); return; }
@@ -2345,6 +2390,7 @@ function buildData(){
     blog: blogData.filter(p=>p.title || p.content).map(p=>({...p, id: p.id || ('post-'+Date.now()+'-'+Math.random().toString(36).slice(2,7))})),
     sections: { testiTitle: document.getElementById('testi-title').value, testiLead: document.getElementById('testi-lead').value, faqTitle: document.getElementById('faq-title').value, faqLead: document.getElementById('faq-lead').value, eventsTitle: document.getElementById('events-title').value, eventsLead: document.getElementById('events-lead').value },
     daily: { enabled: document.getElementById('daily-enabled').checked, title: document.getElementById('daily-title').value.trim(), quotes: quotesData.filter(q=>String(q.text||'').trim()).map(q=>({text:q.text.trim(), by:(q.by||'').trim()})) },
+    partner: (function(){ const g=id=>document.getElementById(id).value.trim(); return { enabled: document.getElementById('pt-enabled').checked, showHome: document.getElementById('pt-home').checked, showFooter: document.getElementById('pt-foot').checked, showCert: document.getElementById('pt-cert').checked, eyebrow:g('pt-eyebrow'), name:g('pt-name'), short:g('pt-short'), logo:g('pt-logo'), tagline:g('pt-tagline'), text:g('pt-text'), btn:g('pt-btn'), link:g('pt-link'), btn2:g('pt-btn2'), link2:g('pt-link2'), bullets: document.getElementById('pt-bullets').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,4) }; })(),
     spotlight: { enabled: document.getElementById('sp-enabled').checked, month: document.getElementById('sp-month-in').value.trim(), name: document.getElementById('sp-name-in').value.trim(), role: document.getElementById('sp-role-in').value.trim(), photo: document.getElementById('sp-photo-in').value.trim(), story: document.getElementById('sp-story-in').value.trim(), quote: document.getElementById('sp-quote-in').value.trim(), achievements: document.getElementById('sp-ach-in').value.split('\n').map(x=>x.trim()).filter(Boolean) },
     events: eventsData.filter(e=>String(e.title||'').trim()).map(e=>({title:e.title.trim(),date:e.date||'',time:e.time.trim(),place:e.place.trim(),text:e.text.trim(),link:e.link.trim()})),
     testimonials: testiData.filter(t=>String(t.quote||'').trim()).map(t=>({name:t.name.trim(),role:t.role.trim(),quote:t.quote.trim(),photo:t.photo.trim()})),
