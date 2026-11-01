@@ -83,7 +83,7 @@
     var sv = $('#pzSv');
     if (!n) { sv.className = 'pz-msg er'; sv.textContent = t('offline'); return; }
     if (!n.getName()) { sv.textContent = t('nonick'); n.submit(game, score); return; }
-    n.submit(game, score).then(function (r) { sv.className = 'pz-msg ' + (r.online ? 'ok' : 'er'); sv.textContent = r.online ? t('saved') : t('offline'); });
+    n.submit(game, score).then(function (r) { sv.className = 'pz-msg ' + (r.online ? 'ok' : 'er'); sv.textContent = r.online ? t('saved') : t('offline') + (r.error ? ' [' + r.error + ']' : ''); });
   }
 
   /* ---------- Memory Match ---------- */
