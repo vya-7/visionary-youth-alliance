@@ -178,8 +178,9 @@
   }
 
   /* ---------- boot ---------- */
+  function warm() { try { var n = N(); if (n) { n.myUid(); n.getSites(); } } catch (e) {} }
   function boot() { go('home'); }
-  if (window.TVNet) boot(); else { boot(); addEventListener('tvnet-ready', function () { go(cur); }, { once: true }); }
+  if (window.TVNet) { warm(); boot(); } else { boot(); addEventListener('tvnet-ready', function () { warm(); go(cur); }, { once: true }); }
   var ol = window.applyLanguage; if (typeof ol === 'function') window.applyLanguage = function () { ol.apply(this, arguments); if (cur === 'home' || cur === 'lb' || cur === 'net') go(cur); };
   window.PZ = { go: go, setLang: function (l) { store.s('pz_lang', l); go(cur); }, lang: lang };
 })();
