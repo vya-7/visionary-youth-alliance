@@ -20,7 +20,7 @@
       hint: 'Hint', clear: 'Clear', back: '⌫', skipW: 'Skip', t: 'TRUE', f: 'FALSE', done: 'Finished!', newbest: '🎉 New personal best!',
       saved: 'Saved to the leaderboard ✓', offline: 'Could not reach the leaderboard — your score is kept on this phone.', nonick: 'Set a nickname to join the leaderboard.',
       all: 'All sites', here: 'This site', rank: 'Rank', empty: 'No scores yet — be the first!', share: 'Share', copied: 'Copied!', you: 'You', visit: 'Visit', hereTag: 'You are here',
-      netT: 'Our Network', netD: 'Sites connected through TalentVerse Network. One leaderboard, many communities.', loading: 'Loading…', change: 'change', shareT: 'I scored {s} in {g}! Can you beat me?' },
+      netT: 'Our Network', topT: 'Network Top Member', topM: 'Most active member across all our sites', netD: 'Sites connected through TalentVerse Network. One leaderboard, many communities.', loading: 'Loading…', change: 'change', shareT: 'I scored {s} in {g}! Can you beat me?' },
     bn: { memory: 'মেমোরি ম্যাচ', scramble: 'শব্দ সাজাও', rush: 'সত্য / মিথ্যা রাশ', lb: 'লিডারবোর্ড', net: 'আমাদের নেটওয়ার্ক',
       dMemory: 'কার্ড উল্টে প্রতিটা দেশের সঙ্গে তার রাজধানী মেলাও।', dScramble: '৯০ সেকেন্ডে যত পারো এলোমেলো শব্দ সাজাও।', dRush: 'সত্য না মিথ্যা? ৪৫ সেকেন্ডে যত পারো উত্তর দাও।',
       tabGames: 'গেম', tabRank: 'র‍্যাংক', tabNet: 'নেটওয়ার্ক', best: 'সেরা', play: 'খেলো', again: 'আবার খেলো', home: 'সব খেলা', score: 'স্কোর', time: 'সময়', moves: 'চাল', words: 'শব্দ', streak: 'ধারা',
@@ -28,7 +28,7 @@
       hint: 'ইঙ্গিত', clear: 'মুছো', back: '⌫', skipW: 'বাদ', t: 'সত্য', f: 'মিথ্যা', done: 'শেষ!', newbest: '🎉 নতুন ব্যক্তিগত রেকর্ড!',
       saved: 'লিডারবোর্ডে সেভ হয়েছে ✓', offline: 'লিডারবোর্ডে পৌঁছানো যায়নি — স্কোর এই ফোনে রাখা হলো।', nonick: 'লিডারবোর্ডে আসতে একটা ডাকনাম দাও।',
       all: 'সব সাইট', here: 'এই সাইট', rank: 'র‍্যাংক', empty: 'এখনো কোনো স্কোর নেই — প্রথম হও!', share: 'শেয়ার', copied: 'কপি হয়েছে!', you: 'তুমি', visit: 'দেখো', hereTag: 'তুমি এখানে আছো',
-      netT: 'আমাদের নেটওয়ার্ক', netD: 'TalentVerse Network-এর মাধ্যমে যুক্ত সাইটগুলো। একটা লিডারবোর্ড, অনেক কমিউনিটি।', loading: 'লোড হচ্ছে…', change: 'বদলাও', shareT: 'আমি {g}-এ {s} স্কোর করেছি! তুমি হারাতে পারবে?' }
+      netT: 'আমাদের নেটওয়ার্ক', topT: 'নেটওয়ার্ক টপ মেম্বার', topM: 'আমাদের সব সাইটে সবচেয়ে সক্রিয় সদস্য', netD: 'TalentVerse Network-এর মাধ্যমে যুক্ত সাইটগুলো। একটা লিডারবোর্ড, অনেক কমিউনিটি।', loading: 'লোড হচ্ছে…', change: 'বদলাও', shareT: 'আমি {g}-এ {s} স্কোর করেছি! তুমি হারাতে পারবে?' }
   };
   var t = function (k) { return T[lang()][k] || k; };
   var ICON = { memory: '🧠', scramble: '🔤', rush: '⚡' };
@@ -168,6 +168,15 @@
   function network(b) {
     b.innerHTML = '<div class="pz-card"><h2>🌐 ' + t('netT') + '</h2><p>' + t('netD') + '</p><div class="pz-sites" id="pzSites" style="margin-top:12px"><p>' + t('loading') + '</p></div></div>';
     var n = N(); if (!n) return;
+    if (n.latestTop) n.latestTop().then(function (tp) {
+      if (!tp) return; var box = $('#pzSites'); if (!box || !box.parentNode) return;
+      n.getSites().then(function (ss) {
+        var st = ss.filter(function (z) { return z.id === tp.siteId; })[0] || {};
+        var card = document.createElement('div'); card.className = 'pz-topm';
+        card.innerHTML = (tp.photo && /^https?:/i.test(tp.photo) ? '<img src="' + esc(tp.photo) + '" alt="">' : '<span class="pz-topav">🏅</span>') + '<div><small>🏅 ' + t('topT') + ' · ' + esc(tp.month) + '</small><b>' + esc(tp.name) + '</b><small>' + esc(st.name || tp.siteId || '') + (tp.note ? ' — ' + esc(tp.note) : '') + '</small></div>';
+        box.parentNode.insertBefore(card, box.parentNode.querySelector('p').nextSibling);
+      });
+    });
     n.getSites().then(function (s) {
       var box = $('#pzSites'); if (!box) return;
       box.innerHTML = s.length ? s.map(function (x) {
